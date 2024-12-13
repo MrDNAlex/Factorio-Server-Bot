@@ -54,15 +54,13 @@ COPY ./ /FactorioBot
 WORKDIR /home/factorio
 
 # Install Factorio File
-RUN wget https://factorio.com/get-download/2.0.11/headless/linux64 -O factorio_headless_linux_2.0.11.tar.xz
+RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorio_headless_linux_2.0.23.tar.xz
 
 # Extract the Server Files
-RUN tar -xvf factorio_headless_linux_2.0.11.tar.xz
+RUN tar -xvf factorio_headless_linux_2.0.23.tar.xz
 
 # Remove the tar file
-RUN rm factorio_headless_linux_2.0.11.tar.xz
-
-
+RUN rm factorio_headless_linux_2.0.23.tar.xz
 
 # Set the working directory to /FactorioBot
 WORKDIR /FactorioBot

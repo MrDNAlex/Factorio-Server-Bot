@@ -15,20 +15,10 @@ class Start extends dna_discord_framework_1.Command {
             let runner = new dna_discord_framework_1.BashScriptRunner();
             this.AddToMessage("Starting Server");
             runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.StartServer} /home/factorio/World.zip`, true, dataManager.SERVER_EXECUTABLE_PATH);
-            console.log(runner.StandardOutputLogs);
             setTimeout(() => {
                 console.log(runner.StandardOutputLogs);
             }, 10000);
             this.AddToMessage("Server started");
-            //Documentation : https://wiki.factorio.com/Multiplayer
-            //Generate the map and save to an image
-            // await runner.RunLocally(`./factorio ${FactorioServerCommands.GenerateMapPreview} ./World.png`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
-            //    this.AddToMessage("Error generating map");
-            //   this.AddToMessage(err);
-            // });
-            //Send the image to the user
-            // this.AddToMessage("Map generated:");
-            // this.AddFileToMessage(`${dataManager.SERVER_EXECUTABLE_PATH}/World.png`);
         };
         this.IsEphemeralResponse = true;
         this.IsCommandBlocking = false;
