@@ -28,13 +28,14 @@ class GenMap extends dna_discord_framework_1.Command {
                 additionalSettings += ` ${FactorioServerCommands_1.default.MapGenSettings} ${dataManager.WORLD_MAPGEN_SETTINGS}`;
             }
             this.AddToMessage("Generating Map...");
+            let seed = 5515;
             //Generate the map and save to an image
-            await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands_1.default.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
+            await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands_1.default.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE} ${FactorioServerCommands_1.default.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
                 console.log("Error generating map");
                 console.log(err);
             });
             // Generate the World and Save to a zip file
-            await runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.Create} ${dataManager.WORLD_PREVIEW_FILE} `, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
+            await runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.Create} ${dataManager.WORLD_PREVIEW_FILE} ${FactorioServerCommands_1.default.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
                 console.log("Error generating map");
                 console.log(err);
             });

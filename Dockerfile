@@ -44,30 +44,25 @@ RUN chown -R factorio:factorio /home/factorio/
 RUN sudo mkdir /FactorioBot
 
 # Give Ownership to the Steam User for the Palworld Bot Directory
-RUN chown -R factorio:factorio /FactorioBot
-RUN chmod -R 755 /FactorioBot
+RUN chown -R factorio:factorio /FactorioBot \
+&& chmod -R 755 /FactorioBot
 
 # Copy the Factorio Server Bot Files
 COPY ./ /FactorioBot
 
-# Copy the file from the Project Directory to the Factorio Directory
-RUN cp /FactorioBot/factorio_headless_linux_2.0.23.tar.xz /home/factorio/factorioserver.tar.xz
+# Copy the file from the Project Directory to the Factorio Directory and remove the old one
+RUN cp /FactorioBot/factorio_headless_linux_2.0.23.tar.xz /home/factorio/factorioserver.tar.xz \
+&& rm -rf /FactorioBot/factorio_headless_linux_2.0.23.tar.xz
 
 # Change the Working Directory
 WORKDIR /home/factorio
 
 # Download the Factorio Server Files
-#RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorio_headless_linux_2.0.23.tar.xz
 #RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorioserver.tar.xz
 
-# Remove the Old Copy
-RUN rm -rf /FactorioBot/factorio_headless_linux_2.0.23.tar.xz
-
-# Extract the Server Files
-RUN tar -xvf factorioserver.tar.xz
-
-# Remove the tar file
-RUN rm factorioserver.tar.xz
+# Extract the Server Files and Remove the Tar File
+RUN tar -xvf factorioserver.tar.xz \
+&& rm -rf factorioserver.tar.xz
 
 # Set the working directory to /FactorioBot
 WORKDIR /FactorioBot

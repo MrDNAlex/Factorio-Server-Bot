@@ -35,15 +35,18 @@ class GenMap extends Command {
         }
 
         this.AddToMessage("Generating Map...");
+        
+        // Need to specify a seed so that the map is the same every time between the image and the world file
+        let seed = 5515;
 
         //Generate the map and save to an image
-        await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
+        await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE} ${FactorioServerCommands.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
             console.log("Error generating map");
             console.log(err);
         });
 
         // Generate the World and Save to a zip file
-        await runner.RunLocally(`./factorio ${FactorioServerCommands.Create} ${dataManager.WORLD_PREVIEW_FILE} `, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
+        await runner.RunLocally(`./factorio ${FactorioServerCommands.Create} ${dataManager.WORLD_PREVIEW_FILE} ${FactorioServerCommands.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
             console.log("Error generating map");
             console.log(err);
         });

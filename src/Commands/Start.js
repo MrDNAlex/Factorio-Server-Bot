@@ -14,10 +14,19 @@ class Start extends dna_discord_framework_1.Command {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let runner = new dna_discord_framework_1.BashScriptRunner();
             this.AddToMessage("Starting Server");
-            runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.StartServer} /home/factorio/World.zip`, true, dataManager.SERVER_EXECUTABLE_PATH);
+            runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.StartServer} ${dataManager.WORLD_PREVIEW_FILE} --port 8213`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
+                console.log("Error starting server");
+                console.log(err);
+            });
             setTimeout(() => {
                 console.log(runner.StandardOutputLogs);
-            }, 10000);
+                setTimeout(() => {
+                    console.log(runner.StandardOutputLogs);
+                    setTimeout(() => {
+                        console.log(runner.StandardOutputLogs);
+                    }, 20000);
+                }, 20000);
+            }, 20000);
             this.AddToMessage("Server started");
         };
         this.IsEphemeralResponse = true;
