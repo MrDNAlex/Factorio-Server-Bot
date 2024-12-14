@@ -2,9 +2,11 @@ import { BotDataManager } from "dna-discord-framework";
 
 class FactorioServerBotDataManager extends BotDataManager
 {
-    MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/map-gen-settings.json";
+    FACTORIO_HOME_DIR: string = "/home/factorio";
 
-    SERVER_PATH: string = "/home/factorio/factorio";
+    MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/MapGenTemplate.json";
+
+    SERVER_PATH: string = `/home/factorio/factorio`;
 
     SERVER_EXECUTABLE_PATH:string = "/home/factorio/factorio/bin/x64";
 
@@ -14,7 +16,7 @@ class FactorioServerBotDataManager extends BotDataManager
 
     WORLD_PREVIEW_FILE:string = "/home/factorio/Preview.zip";
 
-    WORLD_MAPGEN_SETTINGS:string = "/home/factorio/map-gen-settings.json";
+    WORLD_MAPGEN_SETTINGS:string = "/home/factorio/MapGenTemplate.json";
 
 }
     

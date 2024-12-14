@@ -39,7 +39,9 @@ class GenMap extends dna_discord_framework_1.Command {
                 console.log(err);
             });
             console.log(runner.StandardOutputLogs);
+            // Check if the image was generated and the World file was created
             if (fs_1.default.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs_1.default.existsSync(dataManager.WORLD_PREVIEW_FILE)) {
+                // Check if the image is less than 25MB
                 if (fs_1.default.fstatSync(fs_1.default.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024 * 1024 * 25) {
                     //Send the image to the user 
                     this.AddToMessage("Map generated:");
@@ -62,12 +64,17 @@ class GenMap extends dna_discord_framework_1.Command {
             },
             {
                 name: "mapgensettings",
-                description: "Settings file for the Map Generation",
+                description: "Settings file for the Map Generation, get the template from /help",
                 required: false,
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
             }
         ];
     }
+    /**
+     * Donwloads the Map Generation Settings file
+     * @param attachement The File to download
+     * @returns Nothing
+     */
     async DownloadFile(attachement) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         if (!attachement)

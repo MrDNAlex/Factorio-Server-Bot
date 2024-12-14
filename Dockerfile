@@ -50,17 +50,24 @@ RUN chmod -R 755 /FactorioBot
 # Copy the Factorio Server Bot Files
 COPY ./ /FactorioBot
 
+# Copy the file from the Project Directory to the Factorio Directory
+RUN cp /FactorioBot/factorio_headless_linux_2.0.23.tar.xz /home/factorio/factorioserver.tar.xz
+
 # Change the Working Directory
 WORKDIR /home/factorio
 
-# Install Factorio File
-RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorio_headless_linux_2.0.23.tar.xz
+# Download the Factorio Server Files
+#RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorio_headless_linux_2.0.23.tar.xz
+#RUN wget https://factorio.com/get-download/2.0.23/headless/linux64 -O factorioserver.tar.xz
+
+# Remove the Old Copy
+RUN rm -rf /FactorioBot/factorio_headless_linux_2.0.23.tar.xz
 
 # Extract the Server Files
-RUN tar -xvf factorio_headless_linux_2.0.23.tar.xz
+RUN tar -xvf factorioserver.tar.xz
 
 # Remove the tar file
-RUN rm factorio_headless_linux_2.0.23.tar.xz
+RUN rm factorioserver.tar.xz
 
 # Set the working directory to /FactorioBot
 WORKDIR /FactorioBot

@@ -50,8 +50,10 @@ class GenMap extends Command {
 
         console.log(runner.StandardOutputLogs);
 
+        // Check if the image was generated and the World file was created
         if (fs.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs.existsSync(dataManager.WORLD_PREVIEW_FILE))
         {
+            // Check if the image is less than 25MB
             if (fs.fstatSync(fs.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024*1024*25)
             {
                 //Send the image to the user 
@@ -67,6 +69,11 @@ class GenMap extends Command {
         this.AddToMessage("Error generating map");
     }
 
+    /**
+     * Donwloads the Map Generation Settings file
+     * @param attachement The File to download
+     * @returns Nothing
+     */
     public async DownloadFile(attachement: Attachment | null) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager)
         
@@ -105,7 +112,7 @@ class GenMap extends Command {
         },
         {
             name: "mapgensettings",
-            description: "Settings file for the Map Generation",
+            description: "Settings file for the Map Generation, get the template from /help",
             required: false,
             type: OptionTypesEnum.Attachment,
         }
