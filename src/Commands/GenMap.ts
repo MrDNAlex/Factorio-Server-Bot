@@ -11,6 +11,10 @@ class GenMap extends Command {
 
     public CommandDescription: string = "Generate a new map";
 
+    public IsEphemeralResponse: boolean = true;
+
+    public IsCommandBlocking: boolean = false;
+
     //Documentation : https://wiki.factorio.com/Multiplayer
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
@@ -39,13 +43,13 @@ class GenMap extends Command {
         // Need to specify a seed so that the map is the same every time between the image and the world file
         let seed = 5515;
 
-        //Generate the map and save to an image
+        //Generate The Map Preview and Save it as an image 
         await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE} ${FactorioServerCommands.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
             console.log("Error generating map");
             console.log(err);
         });
 
-        // Generate the World and Save to a zip file
+        // Generate the World and Save to a ZIP file
         await runner.RunLocally(`./factorio ${FactorioServerCommands.Create} ${dataManager.WORLD_PREVIEW_FILE} ${FactorioServerCommands.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
             console.log("Error generating map");
             console.log(err);
@@ -102,9 +106,6 @@ class GenMap extends Command {
             console.error(`Failed to download the file: ${error}`);
         }
     }
-
-    public IsEphemeralResponse: boolean = true;
-    public IsCommandBlocking: boolean = false;
 
     Options: ICommandOption[] = [
         {
