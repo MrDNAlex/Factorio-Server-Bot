@@ -12,15 +12,17 @@ class GenMap extends dna_discord_framework_1.Command {
         super(...arguments);
         this.CommandName = "genmap";
         this.CommandDescription = "Generate a new map";
+        this.IsEphemeralResponse = true;
+        this.IsCommandBlocking = false;
+        this.MaxSeed = 2147483647;
         //Documentation : https://wiki.factorio.com/Multiplayer
         this.RunCommand = async (client, interaction, BotDataManager) => {
-            let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            let runner = new dna_discord_framework_1.BashScriptRunner();
-            // Extract the Optional Settings
             const previewSize = interaction.options.getNumber("previewsize");
             const mapGenSettings = interaction.options.getAttachment("mapgensettings");
-            // Define additional settings that will be added
             let additionalSettings = "";
+            let seed = Math.floor(Math.random() * this.MaxSeed);
+            let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            let runner = new dna_discord_framework_1.BashScriptRunner();
             if (previewSize)
                 additionalSettings += ` ${FactorioServerCommands_1.default.MapPreviewSize} ${previewSize}`;
             if (mapGenSettings) {
@@ -28,34 +30,29 @@ class GenMap extends dna_discord_framework_1.Command {
                 additionalSettings += ` ${FactorioServerCommands_1.default.MapGenSettings} ${dataManager.WORLD_MAPGEN_SETTINGS}`;
             }
             this.AddToMessage("Generating Map...");
-            let seed = 5515;
-            //Generate the map and save to an image
+            //Generate The Map Preview and Save it as an image 
             await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands_1.default.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE} ${FactorioServerCommands_1.default.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
                 console.log("Error generating map");
                 console.log(err);
             });
-            // Generate the World and Save to a zip file
+            // Generate the World and Save to a ZIP file
             await runner.RunLocally(`./factorio ${FactorioServerCommands_1.default.Create} ${dataManager.WORLD_PREVIEW_FILE} ${FactorioServerCommands_1.default.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
                 console.log("Error generating map");
                 console.log(err);
             });
+            // Log the outputs
             console.log(runner.StandardOutputLogs);
             // Check if the image was generated and the World file was created
-            if (fs_1.default.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs_1.default.existsSync(dataManager.WORLD_PREVIEW_FILE)) {
-                // Check if the image is less than 25MB
-                if (fs_1.default.fstatSync(fs_1.default.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024 * 1024 * 25) {
-                    //Send the image to the user 
-                    this.AddToMessage("Map generated:");
-                    this.AddFileToMessage(dataManager.WORLD_PREVIEW_IMAGE);
-                    return;
-                }
-                this.AddToMessage("Map preview is too large to send, please download it from the server");
-                return;
-            }
-            this.AddToMessage("Error generating map");
+            if (!(fs_1.default.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs_1.default.existsSync(dataManager.WORLD_PREVIEW_FILE)))
+                return this.AddToMessage("Error generating map");
+            // Check if the image is less than 25MB
+            if (!(fs_1.default.fstatSync(fs_1.default.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024 * 1024 * 25))
+                return this.AddToMessage("Map preview is too large to send, please download it from the server");
+            //Send the image to the user 
+            this.AddToMessage("Map generated:");
+            this.AddFileToMessage(dataManager.WORLD_PREVIEW_IMAGE);
+            return;
         };
-        this.IsEphemeralResponse = true;
-        this.IsCommandBlocking = false;
         this.Options = [
             {
                 name: "previewsize",

@@ -15,33 +15,28 @@ class GenMap extends Command {
 
     public IsCommandBlocking: boolean = false;
 
+    private MaxSeed: number = 2147483647;
+
     //Documentation : https://wiki.factorio.com/Multiplayer
 
-    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
-    {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager)
-        let runner = new BashScriptRunner();
-    
-        // Extract the Optional Settings
+    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         const previewSize = interaction.options.getNumber("previewsize");
         const mapGenSettings = interaction.options.getAttachment("mapgensettings");
 
-        // Define additional settings that will be added
         let additionalSettings = "";
+        let seed = Math.floor(Math.random() * this.MaxSeed);
+        let dataManager = BotData.Instance(FactorioServerBotDataManager)
+        let runner = new BashScriptRunner();
 
-        if (previewSize) 
+        if (previewSize)
             additionalSettings += ` ${FactorioServerCommands.MapPreviewSize} ${previewSize}`;
 
-        if (mapGenSettings)
-        {
+        if (mapGenSettings) {
             await this.DownloadFile(mapGenSettings);
             additionalSettings += ` ${FactorioServerCommands.MapGenSettings} ${dataManager.WORLD_MAPGEN_SETTINGS}`;
         }
 
         this.AddToMessage("Generating Map...");
-        
-        // Need to specify a seed so that the map is the same every time between the image and the world file
-        let seed = 5515;
 
         //Generate The Map Preview and Save it as an image 
         await runner.RunLocally(`./factorio ${additionalSettings} ${FactorioServerCommands.GenerateMapPreview} ${dataManager.WORLD_PREVIEW_IMAGE} ${FactorioServerCommands.MapGenSeed} ${seed}`, true, dataManager.SERVER_EXECUTABLE_PATH).catch((err) => {
@@ -55,25 +50,21 @@ class GenMap extends Command {
             console.log(err);
         });
 
+        // Log the outputs
         console.log(runner.StandardOutputLogs);
 
         // Check if the image was generated and the World file was created
-        if (fs.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs.existsSync(dataManager.WORLD_PREVIEW_FILE))
-        {
-            // Check if the image is less than 25MB
-            if (fs.fstatSync(fs.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024*1024*25)
-            {
-                //Send the image to the user 
-                this.AddToMessage("Map generated:");
-                this.AddFileToMessage(dataManager.WORLD_PREVIEW_IMAGE);
-                return;
-            }
+        if (!(fs.existsSync(dataManager.WORLD_PREVIEW_IMAGE) && fs.existsSync(dataManager.WORLD_PREVIEW_FILE)))
+            return this.AddToMessage("Error generating map");
 
-            this.AddToMessage("Map preview is too large to send, please download it from the server");
-            return;
-        }
+        // Check if the image is less than 25MB
+        if (!(fs.fstatSync(fs.openSync(dataManager.WORLD_PREVIEW_IMAGE, 'r')).size < 1024 * 1024 * 25))
+            return this.AddToMessage("Map preview is too large to send, please download it from the server");
 
-        this.AddToMessage("Error generating map");
+        //Send the image to the user 
+        this.AddToMessage("Map generated:");
+        this.AddFileToMessage(dataManager.WORLD_PREVIEW_IMAGE);
+        return;
     }
 
     /**
@@ -83,7 +74,7 @@ class GenMap extends Command {
      */
     public async DownloadFile(attachement: Attachment | null) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager)
-        
+
         if (!attachement)
             return
 
