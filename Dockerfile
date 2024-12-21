@@ -9,6 +9,23 @@ RUN cd /tmp \
     && tar -xJf node-v$NODE_VERSION-linux-x64.tar.xz -C /usr/local --strip-components=1 \
     && rm node-v$NODE_VERSION-linux-x64.tar.xz
 
+WORKDIR /home/factorio
+
+# Create a World Folder
+RUN sudo mkdir World \
+&& chown -R factorio:factorio World \
+&& chmod -R 755 World
+
+# Create a Previews Folder
+RUN sudo mkdir Previews \
+&& chown -R factorio:factorio Previews \
+&& chmod -R 755 Previews
+
+# Create a Backup Folder
+RUN sudo mkdir Backups \
+&& chown -R factorio:factorio Backups \
+&& chmod -R 755 Backups
+
 # Make the Factorio Server Bot and Give Ownership to the Factorio User
 RUN sudo mkdir /FactorioBot \
 && chown -R factorio:factorio /FactorioBot \

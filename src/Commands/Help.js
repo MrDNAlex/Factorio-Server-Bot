@@ -12,14 +12,15 @@ class Help extends dna_discord_framework_1.Command {
         //Documentation : https://wiki.factorio.com/Multiplayer
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            let genMapCommand = "'/genmap'";
+            let genMapCommand = "'/genworld'";
             let createServerCommand = "'/start'";
+            let setupCommand = "`/setup`";
             let message = `Hello! I am the Engineers Assistant! I am here to help you, the Engineer, set up a Factorio Server.`;
             this.AddToMessage(message);
             let createServer = `To create a server, you will need to do the following steps:
-        1. Generate a Map Preview using the command ${genMapCommand}, you can add additional parameters to the command to customize the map, and use the MapGenTemplate.json file to customize the map further.
-2. Then you can Start the Server using the command ${createServerCommand}.
-3. The Server will be created and you will be given the IP and Port to connect.
+        1. Start by setting up the Servers Hostname/IP Address and Port using ${setupCommand}. Hostname/IP Address must be specified, is Port is not specified it will use the Default (8213).
+2. Generate a World using ${genMapCommand}, you can modify World Generation Settings by adding a modified MapGenTemplate.json file. Repeat this step until you're satisfied with the World.
+3. Now Start the Server using the command ${createServerCommand}.
         `;
             this.AddToMessage(createServer);
             this.AddFileToMessage(dataManager.MAP_GEN_TEMPLATE);
