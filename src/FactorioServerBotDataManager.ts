@@ -36,6 +36,8 @@ class FactorioServerBotDataManager extends BotDataManager
     //Server Host name / IP Address
     SERVER_HOSTNAME: string = ""
 
+    SERVER_IS_ALIVE: boolean = false;
+
 }
     
 export default FactorioServerBotDataManager;

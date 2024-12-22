@@ -22,6 +22,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         this.SERVER_PORT = 8213;
         //Server Host name / IP Address
         this.SERVER_HOSTNAME = "";
+        this.SERVER_IS_ALIVE = false;
     }
 }
 exports.default = FactorioServerBotDataManager;

@@ -33,6 +33,8 @@ class Start extends Command {
         this.AddToMessage("Server has Setup Successfully!");
         this.AddToMessage("Once Server is Started Connect using the following Address:");
         this.AddToMessage(connectionMessage);
+
+        dataManager.SaveData();
     }
 
     Options: ICommandOption[] = [

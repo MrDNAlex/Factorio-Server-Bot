@@ -26,18 +26,19 @@ class Start extends dna_discord_framework_1.Command {
                 console.log(err);
                 return;
             });
-            setTimeout(() => {
-                console.log(runner.StandardOutputLogs);
-                setTimeout(() => {
-                    console.log(runner.StandardOutputLogs);
-                    setTimeout(() => {
-                        console.log(runner.StandardOutputLogs);
-                    }, 20000);
-                }, 20000);
-            }, 20000);
+            //setTimeout(() => {
+            //    console.log(runner.StandardOutputLogs);
+            //    setTimeout(() => {
+            //        console.log(runner.StandardOutputLogs);
+            //        setTimeout(() => {
+            //            console.log(runner.StandardOutputLogs);
+            //        }, 20000);
+            //    }, 20000);
+            //}, 20000);
             this.AddToMessage("Server started");
             this.AddToMessage("Connect to the Server using the Following Connection Info:");
             this.AddToMessage(connectionInfo);
+            dataManager.SERVER_IS_ALIVE = true;
             dataManager.WORLD_CHOSEN = true;
         };
     }

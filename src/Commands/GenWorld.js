@@ -34,12 +34,9 @@ class GenWorld extends dna_discord_framework_1.Command {
             worldInfo.SaveWorldInfo();
             this.AddToMessage("Generating Map...");
             this.AddToMessage(`Seed: ${worldInfo.WorldSeed}`);
-            //let imageCommand = worldInfo.GenImageCommand(previewImageSize);
-            //let worldCommand = worldInfo.GenWorldCommand();
             //Generate The Map Preview and Save it as an image 
             await runner.RunLocally(worldInfo.GenImageCommand(previewImageSize), true).catch((err) => {
                 this.AddToMessage("Error Generating World Image: ABORTING!");
-                //console.log(imageCommand);
                 console.log("Error generating map");
                 console.log(err);
                 return;
@@ -47,7 +44,6 @@ class GenWorld extends dna_discord_framework_1.Command {
             // Generate the World and Save to a ZIP file
             await runner.RunLocally(worldInfo.GenWorldCommand(), true).catch((err) => {
                 this.AddToMessage("Error Generating World File: ABORTING!");
-                //console.log(worldCommand);
                 console.log("Error generating map");
                 console.log(err);
                 return;

@@ -1,9 +1,7 @@
-import { Client, ChatInputCommandInteraction, CacheType, Attachment } from "discord.js";
+import { Client, ChatInputCommandInteraction, CacheType} from "discord.js";
 import { BashScriptRunner, BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../Enums/FactorioServerCommands";
 import fs from "fs";
-import axios from "axios";
 import path from "path";
 import WorldInfo from "../WorldInfo";
 
