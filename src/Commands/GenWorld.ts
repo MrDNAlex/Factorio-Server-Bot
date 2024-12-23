@@ -1,5 +1,5 @@
 import { Client, ChatInputCommandInteraction, CacheType} from "discord.js";
-import { BashScriptRunner, BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
+import { BashScriptRunner, BotCommandLog, BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import path from "path";
@@ -13,7 +13,7 @@ class GenWorld extends Command {
 
     public IsEphemeralResponse: boolean = true;
 
-    public IsCommandBlocking: boolean = false;
+    public IsCommandBlocking: boolean = true;
 
     private MaxSeed: number = 2147483647;
 
@@ -61,7 +61,7 @@ class GenWorld extends Command {
         });
 
         // Log the outputs
-        console.log(runner.StandardOutputLogs);
+        //console.log(runner.StandardOutputLogs);
 
         if (!(fs.existsSync(worldInfo.WorldImage) && fs.existsSync(worldInfo.WorldFile)))
             return this.AddToMessage("Error generating map");

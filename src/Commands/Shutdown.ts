@@ -1,8 +1,6 @@
-import { Client, ChatInputCommandInteraction, CacheType, underline } from "discord.js";
+import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BashScriptRunner, BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../Enums/FactorioServerCommands";
-import fs from "fs";
 
 class Shutdown extends Command {
 
@@ -12,60 +10,73 @@ class Shutdown extends Command {
 
     public IsEphemeralResponse: boolean = true;
 
-    public IsCommandBlocking: boolean = false;
+    public IsCommandBlocking: boolean = true;
 
-    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
-    {
+    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let runner = new BashScriptRunner();
-        let errorCode = 0;
 
-        this.AddToMessage(`Shutting Down Server`);
-
-        if (!dataManager.SERVER_IS_ALIVE)
-            return this.AddToMessage("Server is not Running, Nothing to Shutdown");
-
-        await runner.RunLocally(`pgrep -f "factorio --start-server"`, true).catch((err) => {
-            errorCode = err.code;
-
-            if (err.code === undefined)
-                return;
-
-            this.AddToMessage("Error Checking Server Status: ABORTING!");
-            dataManager.AddErrorLog(err);
-            console.log("Error Checking Server Status");
-            console.log(err);
-        });
-
-        if (errorCode != 0)
-        {
+        if (!dataManager.SERVER_IS_ALIVE || !(await this.IsServerOnline())) {
             dataManager.SERVER_IS_ALIVE = false;
-            return this.AddToMessage("Server is not Running or an Error Occurred");
+            return this.AddToMessage("Server is not Running, Nothing to Shutdown");
         }
-            
-        await runner.RunLocally(`pkill -f "factorio --start-server" || true`, true).catch
-        ((err) => {
-            errorCode = err.code;
 
-            if (err.code === undefined)
-                return;
+        await this.ShutdownServer();
 
-            this.AddToMessage("Error Shutting Down: ABORTING!");
-
-            dataManager.AddErrorLog(err);
-        });
-
-        console.log(`Error Code: ${errorCode}`);
-
-        if (errorCode == undefined)
-        {
+        if (!(await this.IsServerOnline())) {
             dataManager.SERVER_IS_ALIVE = false;
             return this.AddToMessage("Server has been Shutdown Successfully");
         }
 
         dataManager.SERVER_IS_ALIVE = true;
-        return this.AddToMessage("Server is still Running");
+        this.AddToMessage("Server is still Running");
     }
+
+    public async IsServerOnline() {
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let serverStatus = new BashScriptRunner();
+        let ranIntoError = false;
+        let isServerRunningCommand = `pgrep -f "factorio --start-server /home/factorio/World/World.zip"`;
+
+        await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
+            ranIntoError = true;
+            this.AddToMessage("Error Checking Server Status: ABORTING!");
+            dataManager.AddErrorLog(err);
+            console.log(`Error Checking Server Status : ${err}`);
+        });
+
+        let IDs = serverStatus.StandardOutputLogs.split("\n");
+
+        IDs.forEach((id) => {
+            id = id.trim();
+        });
+
+        IDs = IDs.filter((id) => id != " " && id != "");
+
+        if (ranIntoError || IDs.length <= 1)
+            return false;
+
+        return true;
+    }
+
+    public async ShutdownServer() {
+        let shutdown = new BashScriptRunner();
+        let shutdownCommand = `pkill -f "factorio --start-server" || true`;
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+
+        this.AddToMessage("Shutting Down Server");
+
+        await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
+            if (err.code === undefined)
+                return;
+
+            this.AddToMessage("Error Shutting Down: ABORTING!");
+            dataManager.AddErrorLog(err);
+        });
+
+        return new Promise(resolve => setTimeout(resolve, 3000));
+    }
+
+
 }
 
 export = Shutdown;

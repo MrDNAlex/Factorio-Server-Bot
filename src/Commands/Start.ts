@@ -27,6 +27,10 @@ class Start extends Command {
 
         runner.RunLocally(`factorio ${FactorioServerCommands.StartServer} ${dataManager.WORLD_FILE} --port ${dataManager.SERVER_PORT}`, true).catch
         ((err) => {
+            
+            if (err.code === undefined)
+                return;
+
             this.AddToMessage("Error Starting Server: ABORTING!");
             console.log("Error starting server");
             console.log(err);

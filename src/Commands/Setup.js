@@ -25,6 +25,7 @@ class Start extends dna_discord_framework_1.Command {
             this.AddToMessage("Server has Setup Successfully!");
             this.AddToMessage("Once Server is Started Connect using the following Address:");
             this.AddToMessage(connectionMessage);
+            dataManager.SaveData();
         };
         this.Options = [
             {

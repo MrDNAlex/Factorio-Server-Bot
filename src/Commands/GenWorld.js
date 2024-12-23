@@ -13,7 +13,7 @@ class GenWorld extends dna_discord_framework_1.Command {
         this.CommandName = "genworld";
         this.CommandDescription = "Creates a new World with a Preview Image.";
         this.IsEphemeralResponse = true;
-        this.IsCommandBlocking = false;
+        this.IsCommandBlocking = true;
         this.MaxSeed = 2147483647;
         this.MB_25 = 1024 * 1024 * 25;
         this.RunCommand = async (client, interaction, BotDataManager) => {
@@ -49,7 +49,7 @@ class GenWorld extends dna_discord_framework_1.Command {
                 return;
             });
             // Log the outputs
-            console.log(runner.StandardOutputLogs);
+            //console.log(runner.StandardOutputLogs);
             if (!(fs_1.default.existsSync(worldInfo.WorldImage) && fs_1.default.existsSync(worldInfo.WorldFile)))
                 return this.AddToMessage("Error generating map");
             if (!(fs_1.default.fstatSync(fs_1.default.openSync(worldInfo.WorldImage, 'r')).size < this.MB_25))
