@@ -20,15 +20,18 @@ class Shutdown extends Command {
             return this.AddToMessage("Server is not Running, Nothing to Shutdown");
         }
 
+        this.AddToMessage("Shutting Down Server...");
+
         await this.ShutdownServer();
 
         if (!(await this.IsServerOnline())) {
             dataManager.SERVER_IS_ALIVE = false;
-            return this.AddToMessage("Server has been Shutdown Successfully");
+            return this.AddToMessage("Server is Offline.");
         }
 
         dataManager.SERVER_IS_ALIVE = true;
-        this.AddToMessage("Server is still Running");
+        this.AddToMessage("Error Shutting Down Server.");
+        this.AddToMessage("Server is still Online.");
     }
 
     public async IsServerOnline() {
@@ -39,7 +42,6 @@ class Shutdown extends Command {
 
         await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
             ranIntoError = true;
-            this.AddToMessage("Error Checking Server Status: ABORTING!");
             dataManager.AddErrorLog(err);
             console.log(`Error Checking Server Status : ${err}`);
         });
@@ -63,19 +65,15 @@ class Shutdown extends Command {
         let shutdownCommand = `pkill -f "factorio --start-server" || true`;
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
-        this.AddToMessage("Shutting Down Server");
-
         await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
             if (err.code === undefined)
                 return;
 
-            this.AddToMessage("Error Shutting Down: ABORTING!");
             dataManager.AddErrorLog(err);
         });
 
         return new Promise(resolve => setTimeout(resolve, 3000));
     }
-
 
 }
 

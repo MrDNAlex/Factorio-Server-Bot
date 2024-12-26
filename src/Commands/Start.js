@@ -21,8 +21,6 @@ class Start extends dna_discord_framework_1.Command {
             if (!fs_1.default.existsSync(dataManager.WORLD_FILE))
                 return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
             runner.RunLocally(`factorio ${FactorioServerCommands_1.default.StartServer} ${dataManager.WORLD_FILE} --port ${dataManager.SERVER_PORT}`, true).catch((err) => {
-                let errorCode = err.code;
-                console.log(`Error Code: ${errorCode}`);
                 if (err.code === undefined)
                     return;
                 this.AddToMessage("Error Starting Server: ABORTING!");

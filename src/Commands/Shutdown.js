@@ -17,13 +17,15 @@ class Shutdown extends dna_discord_framework_1.Command {
                 dataManager.SERVER_IS_ALIVE = false;
                 return this.AddToMessage("Server is not Running, Nothing to Shutdown");
             }
+            this.AddToMessage("Shutting Down Server...");
             await this.ShutdownServer();
             if (!(await this.IsServerOnline())) {
                 dataManager.SERVER_IS_ALIVE = false;
-                return this.AddToMessage("Server has been Shutdown Successfully");
+                return this.AddToMessage("Server is Offline.");
             }
             dataManager.SERVER_IS_ALIVE = true;
-            this.AddToMessage("Server is still Running");
+            this.AddToMessage("Error Shutting Down Server.");
+            this.AddToMessage("Server is still Online.");
         };
     }
     async IsServerOnline() {
@@ -33,7 +35,6 @@ class Shutdown extends dna_discord_framework_1.Command {
         let isServerRunningCommand = `pgrep -f "factorio --start-server /home/factorio/World/World.zip"`;
         await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
             ranIntoError = true;
-            this.AddToMessage("Error Checking Server Status: ABORTING!");
             dataManager.AddErrorLog(err);
             console.log(`Error Checking Server Status : ${err}`);
         });
@@ -50,11 +51,9 @@ class Shutdown extends dna_discord_framework_1.Command {
         let shutdown = new dna_discord_framework_1.BashScriptRunner();
         let shutdownCommand = `pkill -f "factorio --start-server" || true`;
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        this.AddToMessage("Shutting Down Server");
         await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
             if (err.code === undefined)
                 return;
-            this.AddToMessage("Error Shutting Down: ABORTING!");
             dataManager.AddErrorLog(err);
         });
         return new Promise(resolve => setTimeout(resolve, 3000));

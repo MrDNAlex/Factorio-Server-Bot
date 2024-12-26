@@ -38,6 +38,10 @@ class FactorioServerBotDataManager extends BotDataManager
 
     SERVER_IS_ALIVE: boolean = false;
 
+    WORLD_CHANNEL_SET: boolean = false;
+
+    WORLD_CHANNEL_ID: string = "";
+
 }
     
 export default FactorioServerBotDataManager;

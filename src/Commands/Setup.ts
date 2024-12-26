@@ -1,4 +1,4 @@
-import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
+import { Client, ChatInputCommandInteraction, CacheType, ChannelType } from "discord.js";
 import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 
@@ -16,6 +16,7 @@ class Start extends Command {
     {
         const port = interaction.options.getInteger("port");
         const hostname = interaction.options.getString("hostname");
+        const worldChannel = interaction.options.getChannel("worldchannel");
 
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
@@ -26,6 +27,15 @@ class Start extends Command {
 
         if (port)
             dataManager.SERVER_PORT = port;
+
+        if (worldChannel)
+        {
+            if (worldChannel.type != ChannelType.GuildText)
+                return this.AddToMessage("World Channel must be a Text Channel");
+            
+            dataManager.WORLD_CHANNEL_ID = worldChannel.id;
+            dataManager.WORLD_CHANNEL_SET = true;
+        }
 
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
         let connectionMessage = "```" + connectionInfo + "```";
@@ -49,6 +59,12 @@ class Start extends Command {
             description: "The Port the Server will be Exposed on",
             required: false,
             type: OptionTypesEnum.Integer,
+        },
+        {
+            name: "worldchannel",
+            description: "The Channel where Generated Worlds will be Sent and Shared",
+            required: false,
+            type: OptionTypesEnum.Channel,
         }
     ]
 }
