@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BashScriptRunner, BotData, BotDataManager, Command } from "dna-discord-framework";
+import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import FactorioServerCommand from "../FactorioServerCommands";
 
 class Shutdown extends Command {
 
@@ -15,16 +16,16 @@ class Shutdown extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
-        if (!dataManager.SERVER_IS_ALIVE || !(await this.IsServerOnline())) {
+        if (!dataManager.SERVER_IS_ALIVE || !(await FactorioServerCommand.IsOnline())) {
             dataManager.SERVER_IS_ALIVE = false;
             return this.AddToMessage("Server is not Running, Nothing to Shutdown");
         }
 
         this.AddToMessage("Shutting Down Server...");
 
-        await this.ShutdownServer();
+        await FactorioServerCommand.Shutdown();
 
-        if (!(await this.IsServerOnline())) {
+        if (!(await FactorioServerCommand.IsOnline())) {
             dataManager.SERVER_IS_ALIVE = false;
             return this.AddToMessage("Server is Offline.");
         }
@@ -32,47 +33,6 @@ class Shutdown extends Command {
         dataManager.SERVER_IS_ALIVE = true;
         this.AddToMessage("Error Shutting Down Server.");
         this.AddToMessage("Server is still Online.");
-    }
-
-    public async IsServerOnline() {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let serverStatus = new BashScriptRunner();
-        let ranIntoError = false;
-        let isServerRunningCommand = `pgrep -f "factorio --start-server /home/factorio/World/World.zip"`;
-
-        await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
-            ranIntoError = true;
-            dataManager.AddErrorLog(err);
-            console.log(`Error Checking Server Status : ${err}`);
-        });
-
-        let IDs = serverStatus.StandardOutputLogs.split("\n");
-
-        IDs.forEach((id) => {
-            id = id.trim();
-        });
-
-        IDs = IDs.filter((id) => id != " " && id != "");
-
-        if (ranIntoError || IDs.length <= 1)
-            return false;
-
-        return true;
-    }
-
-    public async ShutdownServer() {
-        let shutdown = new BashScriptRunner();
-        let shutdownCommand = `pkill -f "factorio --start-server" || true`;
-        let dataManager = BotData.Instance(FactorioServerBotDataManager);
-
-        await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
-            if (err.code === undefined)
-                return;
-
-            dataManager.AddErrorLog(err);
-        });
-
-        return new Promise(resolve => setTimeout(resolve, 3000));
     }
 
 }

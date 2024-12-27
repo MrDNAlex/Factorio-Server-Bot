@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const axios_1 = __importDefault(require("axios"));
-const FactorioServerCommands_1 = __importDefault(require("./Enums/FactorioServerCommands"));
+const FactorioExecutableCommands_1 = __importDefault(require("./Enums/FactorioExecutableCommands"));
 const FactorioServerBotDataManager_1 = __importDefault(require("./FactorioServerBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
 class WorldInfo {
@@ -35,10 +35,10 @@ class WorldInfo {
     }
     GenImageCommand(imageSize) {
         this.WorldImageSize = imageSize;
-        return `factorio ${FactorioServerCommands_1.default.GenerateMapPreview} ${this.WorldImage} ${FactorioServerCommands_1.default.MapGenSettings} ${this.WorldSettings}  ${FactorioServerCommands_1.default.MapPreviewSize} ${this.WorldImageSize} ${FactorioServerCommands_1.default.MapGenSeed} ${this.WorldSeed}`;
+        return `factorio ${FactorioExecutableCommands_1.default.GenerateMapPreview} ${this.WorldImage} ${FactorioExecutableCommands_1.default.MapGenSettings} ${this.WorldSettings}  ${FactorioExecutableCommands_1.default.MapPreviewSize} ${this.WorldImageSize} ${FactorioExecutableCommands_1.default.MapGenSeed} ${this.WorldSeed}`;
     }
     GenWorldCommand() {
-        return `factorio ${FactorioServerCommands_1.default.Create} ${this.WorldFile}  ${FactorioServerCommands_1.default.MapGenSettings} ${this.WorldSettings} ${FactorioServerCommands_1.default.MapGenSeed} ${this.WorldSeed}`;
+        return `factorio ${FactorioExecutableCommands_1.default.Create} ${this.WorldFile}  ${FactorioExecutableCommands_1.default.MapGenSettings} ${this.WorldSettings} ${FactorioExecutableCommands_1.default.MapGenSeed} ${this.WorldSeed}`;
     }
     /**
      * Donwloads the Map Generation Settings file

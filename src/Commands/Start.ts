@@ -1,8 +1,8 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
-import { BashScriptRunner, BotData, BotDataManager, Command } from "dna-discord-framework";
+import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../Enums/FactorioServerCommands";
 import fs from "fs";
+import FactorioServerCommands from "../FactorioServerCommands";
 
 class Start extends Command {
 
@@ -17,39 +17,24 @@ class Start extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
     {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let runner = new BashScriptRunner();
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
-
-        this.AddToMessage(`Starting Server on Port ${dataManager.SERVER_PORT}`);
 
         if (!fs.existsSync(dataManager.WORLD_FILE))
             return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
 
-        runner.RunLocally(`factorio ${FactorioServerCommands.StartServer} ${dataManager.WORLD_FILE} --port ${dataManager.SERVER_PORT}`, true).catch
-        ((err) => {
-            
-            if (err.code === undefined)
-                return;
+        if (dataManager.SERVER_IS_ALIVE || await FactorioServerCommands.IsOnline())
+            return this.AddToMessage("Server is already Running.");
 
-            this.AddToMessage("Error Starting Server: ABORTING!");
-            console.log("Error starting server");
-            console.log(err);
-            return;
-        });
+        this.AddToMessage(`Starting Server on Port ${dataManager.SERVER_PORT}`);
 
-        //setTimeout(() => {
-        //    console.log(runner.StandardOutputLogs);
-        //    setTimeout(() => {
-        //        console.log(runner.StandardOutputLogs);
-        //        setTimeout(() => {
-        //            console.log(runner.StandardOutputLogs);
-        //        }, 20000);
-        //    }, 20000);
-        //}, 20000);
+        let startStatus = await FactorioServerCommands.Start();
 
-        this.AddToMessage("Server started");
+        if (!startStatus || !(await FactorioServerCommands.IsOnline()))
+            return this.AddToMessage("Error Starting Server. Please Check the Logs for more Information.");
+
+        this.AddToMessage("Server Started!");
         this.AddToMessage("Connect to the Server using the Following Connection Info:");
-        this.AddToMessage(connectionInfo);
+        this.AddToMessage("```" + connectionInfo + "```");
 
         dataManager.SERVER_IS_ALIVE = true;
         dataManager.WORLD_CHOSEN = true;

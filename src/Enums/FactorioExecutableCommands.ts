@@ -1,4 +1,4 @@
-enum FactorioServerCommands {
+enum FactorioExecutableCommands {
     Map2Scenario = "--map2scenario",
     Scenario2Map = "--scenario2map",
     ApplyUpdate = "--apply-update",
@@ -38,4 +38,4 @@ enum FactorioServerCommands {
     LogSpritesheetsToOptimize = "--log-spritesheets-to-optimize"
 }
 
-export = FactorioServerCommands;
+export = FactorioExecutableCommands;

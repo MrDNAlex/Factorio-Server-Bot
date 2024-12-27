@@ -11,6 +11,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         this.WORLD_MAPGEN_SETTINGS = "/home/factorio/World/MapGenSettings.json";
         this.WORLD_INFO = "/home/factorio/World/WorldInfo.json";
         this.WORLD_CHOSEN = false;
+        this.SERVER_LOGS = "/home/factorio/World/WORLD_LOG.txt";
         //FACTORIO_HOME_DIR: string = "/home/factorio";
         this.MAP_GEN_TEMPLATE = "/FactorioBot/src/Files/MapGenTemplate.json";
         //SERVER_PATH: string = `/Factorio/factorio`;
@@ -22,6 +23,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         this.SERVER_PORT = 8213;
         //Server Host name / IP Address
         this.SERVER_HOSTNAME = "";
+        this.SERVER_NAME = "Factorio Server";
         this.SERVER_IS_ALIVE = false;
         this.WORLD_CHANNEL_SET = false;
         this.WORLD_CHANNEL_ID = "";

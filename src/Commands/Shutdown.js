@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
+const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 class Shutdown extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -13,13 +14,13 @@ class Shutdown extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = true;
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            if (!dataManager.SERVER_IS_ALIVE || !(await this.IsServerOnline())) {
+            if (!dataManager.SERVER_IS_ALIVE || !(await FactorioServerCommands_1.default.IsOnline())) {
                 dataManager.SERVER_IS_ALIVE = false;
                 return this.AddToMessage("Server is not Running, Nothing to Shutdown");
             }
             this.AddToMessage("Shutting Down Server...");
-            await this.ShutdownServer();
-            if (!(await this.IsServerOnline())) {
+            await FactorioServerCommands_1.default.Shutdown();
+            if (!(await FactorioServerCommands_1.default.IsOnline())) {
                 dataManager.SERVER_IS_ALIVE = false;
                 return this.AddToMessage("Server is Offline.");
             }
@@ -27,36 +28,6 @@ class Shutdown extends dna_discord_framework_1.Command {
             this.AddToMessage("Error Shutting Down Server.");
             this.AddToMessage("Server is still Online.");
         };
-    }
-    async IsServerOnline() {
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        let serverStatus = new dna_discord_framework_1.BashScriptRunner();
-        let ranIntoError = false;
-        let isServerRunningCommand = `pgrep -f "factorio --start-server /home/factorio/World/World.zip"`;
-        await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
-            ranIntoError = true;
-            dataManager.AddErrorLog(err);
-            console.log(`Error Checking Server Status : ${err}`);
-        });
-        let IDs = serverStatus.StandardOutputLogs.split("\n");
-        IDs.forEach((id) => {
-            id = id.trim();
-        });
-        IDs = IDs.filter((id) => id != " " && id != "");
-        if (ranIntoError || IDs.length <= 1)
-            return false;
-        return true;
-    }
-    async ShutdownServer() {
-        let shutdown = new dna_discord_framework_1.BashScriptRunner();
-        let shutdownCommand = `pkill -f "factorio --start-server" || true`;
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
-            if (err.code === undefined)
-                return;
-            dataManager.AddErrorLog(err);
-        });
-        return new Promise(resolve => setTimeout(resolve, 3000));
     }
 }
 module.exports = Shutdown;

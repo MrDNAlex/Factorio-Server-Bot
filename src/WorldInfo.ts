@@ -1,7 +1,7 @@
 import { BotData } from "dna-discord-framework";
 import { Attachment } from "discord.js";
 import axios from "axios";
-import FactorioServerCommands from "./Enums/FactorioServerCommands";
+import FactorioExecutableCommands from "./Enums/FactorioExecutableCommands";
 import FactorioServerBotDataManager from "./FactorioServerBotDataManager";
 import fs from "fs";
 
@@ -60,12 +60,12 @@ class WorldInfo
     {
         this.WorldImageSize = imageSize;
 
-        return `factorio ${FactorioServerCommands.GenerateMapPreview} ${this.WorldImage} ${FactorioServerCommands.MapGenSettings} ${this.WorldSettings}  ${FactorioServerCommands.MapPreviewSize} ${this.WorldImageSize} ${FactorioServerCommands.MapGenSeed} ${this.WorldSeed}`;
+        return `factorio ${FactorioExecutableCommands.GenerateMapPreview} ${this.WorldImage} ${FactorioExecutableCommands.MapGenSettings} ${this.WorldSettings}  ${FactorioExecutableCommands.MapPreviewSize} ${this.WorldImageSize} ${FactorioExecutableCommands.MapGenSeed} ${this.WorldSeed}`;
     }
 
     public GenWorldCommand ()
     {
-        return `factorio ${FactorioServerCommands.Create} ${this.WorldFile}  ${FactorioServerCommands.MapGenSettings} ${this.WorldSettings} ${FactorioServerCommands.MapGenSeed} ${this.WorldSeed}`;
+        return `factorio ${FactorioExecutableCommands.Create} ${this.WorldFile}  ${FactorioExecutableCommands.MapGenSettings} ${this.WorldSettings} ${FactorioExecutableCommands.MapGenSeed} ${this.WorldSeed}`;
     }
 
     /**

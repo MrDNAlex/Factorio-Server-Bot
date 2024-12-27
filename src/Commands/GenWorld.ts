@@ -127,7 +127,6 @@ class GenWorld extends Command {
         fs.cpSync(worldInfo.WorldInfo, dataManager.WORLD_INFO);
     }
 
-
     /**
      * Generates a an Image of the World with the given Preview Size
      * @param worldInfo The World Info that needs to be generated
