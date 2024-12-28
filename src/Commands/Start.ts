@@ -25,7 +25,7 @@ class Start extends Command {
         if (dataManager.SERVER_IS_ALIVE || await FactorioServerCommands.IsOnline())
             return this.AddToMessage("Server is already Running.");
 
-        this.AddToMessage(`Starting Server on Port ${dataManager.SERVER_PORT}`);
+        this.AddToMessage(`Starting Server...`);
 
         let startStatus = await FactorioServerCommands.Start();
 
@@ -36,8 +36,8 @@ class Start extends Command {
         this.AddToMessage("Connect to the Server using the Following Connection Info:");
         this.AddToMessage("```" + connectionInfo + "```");
 
-        dataManager.SERVER_IS_ALIVE = true;
         dataManager.WORLD_CHOSEN = true;
+        dataManager.SERVER_START_TIME = new Date().getTime();
     }
 }
 

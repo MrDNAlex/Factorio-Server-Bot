@@ -18,10 +18,15 @@ class WorldInfo {
         this.WorldInfo = `${this.WorldDirectory}/WorldInfo.json`;
         this.WorldImage = `${this.WorldDirectory}/Preview.png`;
         this.WorldFile = `${this.WorldDirectory}/World.zip`;
+        console.log(`World Directory: ${this.WorldDirectory}`);
+        console.log(`World Settings: ${this.WorldSettings}`);
+        console.log(`World Info: ${this.WorldInfo}`);
+        console.log(`World Image: ${this.WorldImage}`);
+        console.log(`World File: ${this.WorldFile}`);
     }
     CreateFolder() {
         if (!fs_1.default.existsSync(this.WorldDirectory))
-            fs_1.default.mkdirSync(this.WorldDirectory);
+            fs_1.default.mkdirSync(this.WorldDirectory, { recursive: true });
     }
     async DownloadMapSettings(mapGenSettings) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);

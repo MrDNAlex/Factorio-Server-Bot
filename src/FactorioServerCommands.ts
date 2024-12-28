@@ -2,6 +2,7 @@ import { BashScriptRunner, BotData } from "dna-discord-framework";
 import FactorioServerBotDataManager from "./FactorioServerBotDataManager";
 import FactorioExecutableCommands from "./Enums/FactorioExecutableCommands";
 import fs from "fs";
+import BackupManager from "./BackupManager";
 
 class FactorioServerCommands {
 
@@ -31,9 +32,12 @@ class FactorioServerCommands {
 
         IDs = IDs.filter((id) => id != " " && id != "");
 
-        if (ranIntoError || IDs.length <= 1)
+        if (ranIntoError || IDs.length <= 1) {
+            dataManager.SERVER_IS_ALIVE = false;
             return false;
+        }
 
+        dataManager.SERVER_IS_ALIVE = true;
         return true;
     }
 
@@ -82,24 +86,31 @@ class FactorioServerCommands {
                 dataManager.SERVER_START_TIME = new Date().getTime();
 
             resolve(success);
-            }, this.WAIT_TIME));
+        }, this.WAIT_TIME));
     }
 
-    public static GetPlayerCount() {
+    public static async Backup(): Promise<boolean> {
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let backupManager = new BackupManager(dataManager.BACKUP_DIRECTORY, dataManager.EXTRA_BACKUP_DIRECTORY, dataManager.WORLD_FOLDER);
+        let backupSuccess = await backupManager.CreateBackup(dataManager, "Backup");
+
+        backupManager.ManageBackupFiles(5);
+
+        dataManager.LAST_BACKUP_DATE = new Date().getTime();
+
+        return backupSuccess;
+    }
+
+    public static GetPlayers() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
         const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
-
-        console.log("Joins : ");
         const joinedUsernames = FactorioServerCommands.GetJoinedUsernames(joins);
-
-        console.log("Leaves : ");
         const leftUsernames = FactorioServerCommands.GetLeftUsernames(leaves);
 
         let usernames = Object.keys(joinedUsernames);
-
         let onlineUsernames: string[] = [];
 
         usernames.forEach((username) => {
@@ -115,7 +126,7 @@ class FactorioServerCommands {
             }
         });
 
-        return onlineUsernames.length;
+        return onlineUsernames;
     }
 
     private static GetJoinedUsernames(joins: string[]): Record<string, number> {
@@ -125,10 +136,6 @@ class FactorioServerCommands {
             const joinLine = join.split("[JOIN]");
             const timeStamp = joinLine[0].replace("[JOIN]", "").trim();
             const username = joinLine[1].replace(" joined the game", "").trim();
-
-            console.log("Time Stamp : ", timeStamp);
-
-            console.log("Username : ", username);
 
             if (username in usernames) {
                 const oldTimeStamp = new Date(usernames[username]).getTime();
@@ -152,10 +159,6 @@ class FactorioServerCommands {
             const timeStamp = leaveLine[0].replace("[LEAVE]", "").trim();
             const username = leaveLine[1].replace(" left the game", "").trim();
 
-            console.log("Time Stamp : ", timeStamp);
-
-            console.log("Username : ", username);
-
             if (username in usernames) {
                 const oldTimeStamp = new Date(usernames[username]).getTime();
                 const newTimeStamp = new Date(timeStamp).getTime();
@@ -164,7 +167,6 @@ class FactorioServerCommands {
                     usernames[username] = newTimeStamp;
             } else
                 usernames[username] = new Date(timeStamp).getTime();
-
         });
 
         return usernames;

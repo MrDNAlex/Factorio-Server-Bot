@@ -1,2 +1,59 @@
+import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
+import { BotData, BotDataManager, Command } from "dna-discord-framework";
+import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import FactorioServerCommands from "../FactorioServerCommands";
+import fs from "fs";
+import fsp from "fs/promises";
 
-//Creates a Backup of the Server World and copies it to the Backup Folder
+class Backup extends Command {
+
+    public CommandName: string = "backup";
+
+    public CommandDescription: string = "Creates a Backup of the Server";
+
+    public IsEphemeralResponse: boolean = true;
+
+    public IsCommandBlocking: boolean = false;
+
+    private MB_25 = 1024 * 1024 * 25;
+
+    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+       
+        this.AddToMessage("Creating Backup of World...");
+
+        let backupSuccess = await FactorioServerCommands.Backup();
+
+        if (!backupSuccess)
+            return this.AddToMessage("Error creating backup");
+
+        this.AddToMessage("Backup Created Successfully!");
+
+        const fileStats = await fsp.stat(dataManager.BACKUP_FILE);
+
+        if (fileStats.size < this.MB_25)
+            this.AddFileToMessage(dataManager.BACKUP_FILE);
+        else
+            this.AddToMessage("Backup File is too large to send, please download it from the server");
+    }
+
+    public GetFileSize(fileStats: fs.Stats): [Number, string] {
+        let realsize;
+        let sizeFormat;
+
+        if (fileStats.size / (1024 * 1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024 * 1024)) / 100;
+            sizeFormat = "MB";
+        } else if (fileStats.size / (1024) >= 1) {
+            realsize = Math.floor(100 * fileStats.size / (1024)) / 100;
+            sizeFormat = "KB";
+        } else {
+            realsize = fileStats.size;
+            sizeFormat = "B";
+        }
+
+        return [realsize, sizeFormat];
+    }
+}
+
+export = Backup;

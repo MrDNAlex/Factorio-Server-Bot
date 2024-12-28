@@ -11,25 +11,10 @@ RUN cd /tmp \
 
 WORKDIR /home/factorio
 
-# Create a World Folder
-RUN sudo mkdir World \
-&& chown -R factorio:factorio World \
-&& chmod -R 755 World
-
-# Create a Previews Folder
-RUN sudo mkdir Previews \
-&& chown -R factorio:factorio Previews \
-&& chmod -R 755 Previews
-
-# Create a Backup Folder
-RUN sudo mkdir Backups \
-&& chown -R factorio:factorio Backups \
-&& chmod -R 755 Backups
-
 # Make the Factorio Server Bot and Give Ownership to the Factorio User
 RUN sudo mkdir /FactorioBot \
 && chown -R factorio:factorio /FactorioBot \
-&& chmod -R 755 /FactorioBot
+&& chmod -R 775 /FactorioBot
 
 # Copy the Factorio Server Bot Files
 COPY ./ /FactorioBot

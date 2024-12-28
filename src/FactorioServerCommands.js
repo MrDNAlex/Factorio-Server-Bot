@@ -7,6 +7,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("./FactorioServerBotDataManager"));
 const FactorioExecutableCommands_1 = __importDefault(require("./Enums/FactorioExecutableCommands"));
 const fs_1 = __importDefault(require("fs"));
+const BackupManager_1 = __importDefault(require("./BackupManager"));
 class FactorioServerCommands {
     /**
      * Pings the Factorio Server to see if it is online
@@ -27,8 +28,11 @@ class FactorioServerCommands {
             id = id.trim();
         });
         IDs = IDs.filter((id) => id != " " && id != "");
-        if (ranIntoError || IDs.length <= 1)
+        if (ranIntoError || IDs.length <= 1) {
+            dataManager.SERVER_IS_ALIVE = false;
             return false;
+        }
+        dataManager.SERVER_IS_ALIVE = true;
         return true;
     }
     /**
@@ -46,7 +50,7 @@ class FactorioServerCommands {
             success = false;
             dataManager.AddErrorLog(err);
         });
-        return new Promise(resolve => setTimeout(() => resolve(success), 3000));
+        return new Promise(resolve => setTimeout(() => resolve(success), this.WAIT_TIME));
     }
     /**
      * Starts the Factorio Server
@@ -64,16 +68,26 @@ class FactorioServerCommands {
             console.log("Error starting server");
             console.log(err);
         });
-        return new Promise(resolve => setTimeout(() => resolve(success), 3000));
+        return new Promise(resolve => setTimeout(() => {
+            if (success)
+                dataManager.SERVER_START_TIME = new Date().getTime();
+            resolve(success);
+        }, this.WAIT_TIME));
     }
-    static GetPlayerCount() {
+    static async Backup() {
+        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+        let backupManager = new BackupManager_1.default(dataManager.BACKUP_DIRECTORY, dataManager.EXTRA_BACKUP_DIRECTORY, dataManager.WORLD_FOLDER);
+        let backupSuccess = await backupManager.CreateBackup(dataManager, "Backup");
+        backupManager.ManageBackupFiles(5);
+        dataManager.LAST_BACKUP_DATE = new Date().getTime();
+        return backupSuccess;
+    }
+    static GetPlayers() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
-        console.log("Joins : ");
         const joinedUsernames = FactorioServerCommands.GetJoinedUsernames(joins);
-        console.log("Leaves : ");
         const leftUsernames = FactorioServerCommands.GetLeftUsernames(leaves);
         let usernames = Object.keys(joinedUsernames);
         let onlineUsernames = [];
@@ -87,7 +101,7 @@ class FactorioServerCommands {
                     onlineUsernames.push(username);
             }
         });
-        return onlineUsernames.length;
+        return onlineUsernames;
     }
     static GetJoinedUsernames(joins) {
         let usernames = {};
@@ -95,8 +109,6 @@ class FactorioServerCommands {
             const joinLine = join.split("[JOIN]");
             const timeStamp = joinLine[0].replace("[JOIN]", "").trim();
             const username = joinLine[1].replace(" joined the game", "").trim();
-            console.log("Time Stamp : ", timeStamp);
-            console.log("Username : ", username);
             if (username in usernames) {
                 const oldTimeStamp = new Date(usernames[username]).getTime();
                 const newTimeStamp = new Date(timeStamp).getTime();
@@ -114,8 +126,6 @@ class FactorioServerCommands {
             const leaveLine = leave.split("[LEAVE]");
             const timeStamp = leaveLine[0].replace("[LEAVE]", "").trim();
             const username = leaveLine[1].replace(" left the game", "").trim();
-            console.log("Time Stamp : ", timeStamp);
-            console.log("Username : ", username);
             if (username in usernames) {
                 const oldTimeStamp = new Date(usernames[username]).getTime();
                 const newTimeStamp = new Date(timeStamp).getTime();
@@ -128,4 +138,5 @@ class FactorioServerCommands {
         return usernames;
     }
 }
+FactorioServerCommands.WAIT_TIME = 3000;
 exports.default = FactorioServerCommands;

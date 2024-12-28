@@ -2,6 +2,7 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import FactorioServerCommands from "../FactorioServerCommands";
+import Time from "../Objects/Time";
 
 class Status extends Command {
 
@@ -16,16 +17,20 @@ class Status extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let pingStatus = await FactorioServerCommands.IsOnline();
+        let uptime = new Date().getTime() - dataManager.SERVER_START_TIME;
+        let uptimeString = new Time(uptime).GetTimeAsString();
+        let backupTime = new Date().getTime() - dataManager.LAST_BACKUP_DATE;
+        let backupTimeString = new Time(backupTime).GetTimeAsString();
 
-        dataManager.SERVER_IS_ALIVE = pingStatus;
+        this.AddFileToMessage(dataManager.SERVER_LOGS);
 
         if (!pingStatus) 
-            return this.AddToMessage("Server is Offline, status cannot be retrieved.");
+            return this.AddToMessage("Server is Offline, Status cannot be retrieved.");
 
         this.AddToMessage(dataManager.SERVER_NAME);
-        this.AddToMessage("\nPlayers Online: " + FactorioServerCommands.GetPlayerCount());
-        
-        this.AddFileToMessage(dataManager.SERVER_LOGS);
+        this.AddToMessage("\nPlayers Online: " + FactorioServerCommands.GetPlayers().length);
+        this.AddToMessage("Server Uptime: " + uptimeString);
+        this.AddToMessage("Last Backup: " + backupTimeString);
     }
 }
 

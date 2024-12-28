@@ -20,15 +20,15 @@ class Start extends dna_discord_framework_1.Command {
                 return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
             if (dataManager.SERVER_IS_ALIVE || await FactorioServerCommands_1.default.IsOnline())
                 return this.AddToMessage("Server is already Running.");
-            this.AddToMessage(`Starting Server on Port ${dataManager.SERVER_PORT}`);
+            this.AddToMessage(`Starting Server...`);
             let startStatus = await FactorioServerCommands_1.default.Start();
             if (!startStatus || !(await FactorioServerCommands_1.default.IsOnline()))
                 return this.AddToMessage("Error Starting Server. Please Check the Logs for more Information.");
             this.AddToMessage("Server Started!");
             this.AddToMessage("Connect to the Server using the Following Connection Info:");
             this.AddToMessage("```" + connectionInfo + "```");
-            dataManager.SERVER_IS_ALIVE = true;
             dataManager.WORLD_CHOSEN = true;
+            dataManager.SERVER_START_TIME = new Date().getTime();
         };
     }
 }

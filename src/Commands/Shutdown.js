@@ -19,6 +19,8 @@ class Shutdown extends dna_discord_framework_1.Command {
                 return this.AddToMessage("Server is not Running, Nothing to Shutdown");
             }
             this.AddToMessage("Shutting Down Server...");
+            // Secretly Backup the Server
+            await FactorioServerCommands_1.default.Backup();
             await FactorioServerCommands_1.default.Shutdown();
             if (!(await FactorioServerCommands_1.default.IsOnline())) {
                 dataManager.SERVER_IS_ALIVE = false;

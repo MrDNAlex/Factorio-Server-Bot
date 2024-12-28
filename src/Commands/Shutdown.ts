@@ -23,6 +23,8 @@ class Shutdown extends Command {
 
         this.AddToMessage("Shutting Down Server...");
 
+        // Secretly Backup the Server
+        await FactorioServerCommand.Backup();
         await FactorioServerCommand.Shutdown();
 
         if (!(await FactorioServerCommand.IsOnline())) {

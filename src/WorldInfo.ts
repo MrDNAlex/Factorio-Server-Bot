@@ -38,7 +38,7 @@ class WorldInfo
     public CreateFolder ()
     {
         if (!fs.existsSync(this.WorldDirectory))
-            fs.mkdirSync(this.WorldDirectory);
+            fs.mkdirSync(this.WorldDirectory, {recursive: true});
     }
 
     public async DownloadMapSettings (mapGenSettings : Attachment | null)
