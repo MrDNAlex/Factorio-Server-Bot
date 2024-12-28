@@ -6,7 +6,7 @@ class FactorioServerBotDataManager extends BotDataManager {
 
     BACKUP_DIRECTORY: string = "/home/factorio/Backups";
 
-    BACKUP_FILE: string = "/home/factorio/Backups/WorldBackup.tar.gz";
+    BACKUP_FILE: string = "/home/factorio/Backups/Backup.tar.gz";
 
     EXTRA_BACKUP_DIRECTORY: string = "/home/factorio/Backups/Extras";
 

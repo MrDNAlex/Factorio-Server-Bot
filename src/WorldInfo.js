@@ -18,11 +18,6 @@ class WorldInfo {
         this.WorldInfo = `${this.WorldDirectory}/WorldInfo.json`;
         this.WorldImage = `${this.WorldDirectory}/Preview.png`;
         this.WorldFile = `${this.WorldDirectory}/World.zip`;
-        console.log(`World Directory: ${this.WorldDirectory}`);
-        console.log(`World Settings: ${this.WorldSettings}`);
-        console.log(`World Info: ${this.WorldInfo}`);
-        console.log(`World Image: ${this.WorldImage}`);
-        console.log(`World File: ${this.WorldFile}`);
     }
     CreateFolder() {
         if (!fs_1.default.existsSync(this.WorldDirectory))
@@ -44,6 +39,9 @@ class WorldInfo {
     }
     GenWorldCommand() {
         return `factorio ${FactorioExecutableCommands_1.default.Create} ${this.WorldFile}  ${FactorioExecutableCommands_1.default.MapGenSettings} ${this.WorldSettings} ${FactorioExecutableCommands_1.default.MapGenSeed} ${this.WorldSeed}`;
+    }
+    AllFilesExist() {
+        return fs_1.default.existsSync(this.WorldSettings) && fs_1.default.existsSync(this.WorldInfo) && fs_1.default.existsSync(this.WorldImage) && fs_1.default.existsSync(this.WorldFile);
     }
     /**
      * Donwloads the Map Generation Settings file

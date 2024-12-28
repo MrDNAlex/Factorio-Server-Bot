@@ -7,21 +7,21 @@ import fs from "fs";
 
 class WorldInfo
 {
-    public WorldDirectory;
+    public WorldDirectory: string;
 
-    public WorldSettings;
+    public WorldSettings: string;
 
-    public WorldImage;
+    public WorldImage: string;
 
-    public WorldFile;
+    public WorldFile: string;
 
-    public WorldImageSize;
+    public WorldImageSize: number;
 
-    public WorldSeed;
+    public WorldSeed: number;
 
-    public WorldInfo;
+    public WorldInfo: string;
 
-    constructor (seed: Number)
+    constructor (seed: number)
     {
         let dataManager = BotData.Instance(FactorioServerBotDataManager)
 
@@ -66,6 +66,11 @@ class WorldInfo
     public GenWorldCommand ()
     {
         return `factorio ${FactorioExecutableCommands.Create} ${this.WorldFile}  ${FactorioExecutableCommands.MapGenSettings} ${this.WorldSettings} ${FactorioExecutableCommands.MapGenSeed} ${this.WorldSeed}`;
+    }
+
+    public AllFilesExist ()
+    {
+        return fs.existsSync(this.WorldSettings) && fs.existsSync(this.WorldInfo) && fs.existsSync(this.WorldImage) && fs.existsSync(this.WorldFile);
     }
 
     /**

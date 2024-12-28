@@ -7,6 +7,7 @@ const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServe
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const WorldInfo_1 = __importDefault(require("../WorldInfo"));
+const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 class GenWorld extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -23,6 +24,8 @@ class GenWorld extends dna_discord_framework_1.Command {
             let previewImageSize = 1024;
             let seed = Math.floor(Math.random() * this.MaxSeed);
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            if (await FactorioServerCommands_1.default.IsOnline())
+                return this.AddToMessage("Server cannot be Running when Generating a World.");
             if (userSeed)
                 seed = userSeed;
             if (previewSize)

@@ -10,7 +10,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         //Current World Files
         super(...arguments);
         this.BACKUP_DIRECTORY = "/home/factorio/Backups";
-        this.BACKUP_FILE = "/home/factorio/Backups/WorldBackup.tar.gz";
+        this.BACKUP_FILE = "/home/factorio/Backups/Backup.tar.gz";
         this.EXTRA_BACKUP_DIRECTORY = "/home/factorio/Backups/Extras";
         this.WORLD_FOLDER = "/home/factorio/World";
         this.WORLD_PREVIEW_IMAGE = "/home/factorio/World/Preview.png";

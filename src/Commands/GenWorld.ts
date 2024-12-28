@@ -1,9 +1,10 @@
 import { Client, ChatInputCommandInteraction, CacheType, TextChannel} from "discord.js";
-import { BashScriptRunner, BotCommandLog, BotData, BotDataManager, BotMessage, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
+import { BashScriptRunner, BotData, BotDataManager, BotMessage, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import path from "path";
 import WorldInfo from "../WorldInfo";
+import FactorioServerCommands from "../FactorioServerCommands";
 
 class GenWorld extends Command {
 
@@ -27,6 +28,9 @@ class GenWorld extends Command {
         let previewImageSize = 1024;
         let seed = Math.floor(Math.random() * this.MaxSeed);
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
+
+        if (await FactorioServerCommands.IsOnline())
+            return this.AddToMessage("Server cannot be Running when Generating a World.");
 
         if (userSeed)
             seed = userSeed;
