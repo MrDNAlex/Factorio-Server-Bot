@@ -23,10 +23,12 @@ class Status extends dna_discord_framework_1.Command {
             this.AddFileToMessage(dataManager.SERVER_LOGS);
             if (!pingStatus)
                 return this.AddToMessage("Server is Offline, Status cannot be retrieved.");
+            dataManager.SERVER_MANAGER.PlayerDB.UpdateOnlinePlayers();
             this.AddToMessage(dataManager.SERVER_NAME);
-            this.AddToMessage("\nPlayers Online: " + FactorioServerCommands_1.default.GetPlayers().length);
+            this.AddToMessage("\nPlayers Online: " + dataManager.SERVER_MANAGER.PlayerDB.OnlinePlayers.length);
             this.AddToMessage("Server Uptime: " + uptimeString);
             this.AddToMessage("Last Backup: " + backupTimeString);
+            dataManager.SaveData();
         };
     }
 }

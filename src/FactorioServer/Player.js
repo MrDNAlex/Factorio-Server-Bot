@@ -3,22 +3,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class Player {
     constructor(json) {
         this.Username = json.Username;
-        this.LoginTimeStamps = json.OnlineTimeStamps;
-        this.DisconnectTimeStamps = json.OfflineTimeStamps;
+        this.LoginTimeStamps = json.LoginTimeStamps;
+        this.DisconnectTimeStamps = json.DisconnectTimeStamps;
+        //Patch the Play Times
+        while (this.LoginTimeStamps.length > this.DisconnectTimeStamps.length)
+            this.DisconnectTimeStamps.push(new Date().getTime());
     }
     /**
      * Adds a Player Login Timestamp
      * @param loginTime The Time at which the Player Logged in
      */
     AddLogin(loginTime) {
-        this.LoginTimeStamps.push(loginTime);
+        if (!(this.LoginTimeStamps.includes(loginTime)))
+            this.LoginTimeStamps.push(loginTime);
     }
     /**
      *
      * @param disconnectTime
      */
     AddDisconnect(disconnectTime) {
-        this.DisconnectTimeStamps.push(disconnectTime);
+        if (!(this.DisconnectTimeStamps.includes(disconnectTime)))
+            this.DisconnectTimeStamps.push(disconnectTime);
     }
     ToJson() {
         return {
@@ -37,6 +42,14 @@ class Player {
         else
             totalPlayTime += this.DisconnectTimeStamps[length] - this.LoginTimeStamps[length];
         return totalPlayTime;
+    }
+    IsOnline() {
+        if (this.LoginTimeStamps.length > this.DisconnectTimeStamps.length)
+            return true;
+        else if (this.LoginTimeStamps.length == this.DisconnectTimeStamps.length)
+            return this.LoginTimeStamps[this.LoginTimeStamps.length - 1] > this.DisconnectTimeStamps[this.DisconnectTimeStamps.length - 1];
+        else
+            return false;
     }
 }
 exports.default = Player;

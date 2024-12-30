@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("./FactorioServerBotDataManager"));
 const FactorioExecutableCommands_1 = __importDefault(require("./Enums/FactorioExecutableCommands"));
-const fs_1 = __importDefault(require("fs"));
 const BackupManager_1 = __importDefault(require("./BackupManager"));
 class FactorioServerCommands {
     /**
@@ -50,7 +49,11 @@ class FactorioServerCommands {
             success = false;
             dataManager.AddErrorLog(err);
         });
-        return new Promise(resolve => setTimeout(() => resolve(success), this.WAIT_TIME));
+        return new Promise(resolve => setTimeout(() => {
+            if (success)
+                dataManager.SERVER_IS_ALIVE = false;
+            resolve(success);
+        }, this.WAIT_TIME));
     }
     /**
      * Starts the Factorio Server
@@ -82,27 +85,33 @@ class FactorioServerCommands {
         dataManager.LAST_BACKUP_DATE = new Date().getTime();
         return backupSuccess;
     }
-    static GetPlayers() {
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
-        const joins = lines.filter((line) => line.includes("[JOIN]"));
-        const leaves = lines.filter((line) => line.includes("[LEAVE]"));
-        const joinedUsernames = FactorioServerCommands.GetJoinedUsernames(joins);
-        const leftUsernames = FactorioServerCommands.GetLeftUsernames(leaves);
-        let usernames = Object.keys(joinedUsernames);
-        let onlineUsernames = [];
-        usernames.forEach((username) => {
-            if (!(username in leftUsernames))
-                onlineUsernames.push(username);
-            else {
-                const joinTimeStamp = joinedUsernames[username];
-                const leaveTimeStamp = leftUsernames[username];
-                if (joinTimeStamp > leaveTimeStamp)
-                    onlineUsernames.push(username);
-            }
-        });
-        return onlineUsernames;
-    }
+    //public static GetPlayers() {
+    //    let dataManager = BotData.Instance(FactorioServerBotDataManager);
+    //
+    //    const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
+    //    const joins = lines.filter((line) => line.includes("[JOIN]"));
+    //    const leaves = lines.filter((line) => line.includes("[LEAVE]"));
+    //    const joinedUsernames = FactorioServerCommands.GetJoinedUsernames(joins);
+    //    const leftUsernames = FactorioServerCommands.GetLeftUsernames(leaves);
+    //
+    //    let usernames = Object.keys(joinedUsernames);
+    //    let onlineUsernames: string[] = [];
+    //
+    //    usernames.forEach((username) => {
+    //
+    //        if (!(username in leftUsernames))
+    //            onlineUsernames.push(username);
+    //        else {
+    //            const joinTimeStamp = joinedUsernames[username];
+    //            const leaveTimeStamp = leftUsernames[username];
+    //
+    //            if (joinTimeStamp > leaveTimeStamp)
+    //                onlineUsernames.push(username);
+    //        }
+    //    });
+    //
+    //    return onlineUsernames;
+    //}
     static GetJoinedUsernames(joins) {
         let usernames = {};
         joins.forEach((join) => {

@@ -15,16 +15,17 @@ class Players extends dna_discord_framework_1.Command {
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let pingStatus = await FactorioServerCommands_1.default.IsOnline();
+            let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
             dataManager.SERVER_IS_ALIVE = pingStatus;
             if (!pingStatus)
                 return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
-            let players = FactorioServerCommands_1.default.GetPlayers();
+            playerDB.UpdateOnlinePlayers();
             this.AddToMessage(`${dataManager.SERVER_NAME} Players :`);
             this.AddToMessage("Players Online: ");
-            if (players.length == 0)
+            if (playerDB.OnlinePlayers.length == 0)
                 this.AddToMessage("No Players Online.");
             else {
-                players.forEach(player => {
+                playerDB.OnlinePlayers.forEach(player => {
                     this.AddToMessage(player);
                 });
             }

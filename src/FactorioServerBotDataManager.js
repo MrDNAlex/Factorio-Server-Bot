@@ -5,10 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const fs_1 = __importDefault(require("fs"));
+const FactorioServerManager_1 = __importDefault(require("./FactorioServer/FactorioServerManager"));
 class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManager {
     constructor() {
         //Current World Files
         super(...arguments);
+        this.SERVER_MANAGER = new FactorioServerManager_1.default();
         this.BACKUP_DIRECTORY = "/home/factorio/Backups";
         this.BACKUP_FILE = "/home/factorio/Backups/Backup.tar.gz";
         this.EXTRA_BACKUP_DIRECTORY = "/home/factorio/Backups/Extras";

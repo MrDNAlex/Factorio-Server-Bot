@@ -1,8 +1,11 @@
 import { BotDataManager } from "dna-discord-framework";
 import fs from "fs";
+import FactorioServerManager from "./FactorioServer/FactorioServerManager";
 
 class FactorioServerBotDataManager extends BotDataManager {
     //Current World Files
+
+    SERVER_MANAGER: FactorioServerManager = new FactorioServerManager();
 
     BACKUP_DIRECTORY: string = "/home/factorio/Backups";
 

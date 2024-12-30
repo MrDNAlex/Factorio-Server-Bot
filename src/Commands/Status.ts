@@ -27,10 +27,14 @@ class Status extends Command {
         if (!pingStatus) 
             return this.AddToMessage("Server is Offline, Status cannot be retrieved.");
 
+        dataManager.SERVER_MANAGER.PlayerDB.UpdateOnlinePlayers();
+
         this.AddToMessage(dataManager.SERVER_NAME);
-        this.AddToMessage("\nPlayers Online: " + FactorioServerCommands.GetPlayers().length);
+        this.AddToMessage("\nPlayers Online: " + dataManager.SERVER_MANAGER.PlayerDB.OnlinePlayers.length);
         this.AddToMessage("Server Uptime: " + uptimeString);
         this.AddToMessage("Last Backup: " + backupTimeString);
+
+        dataManager.SaveData();
     }
 }
 

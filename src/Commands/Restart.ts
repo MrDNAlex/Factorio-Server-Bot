@@ -4,26 +4,34 @@ import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import FactorioServerCommands from "../FactorioServerCommands";
 
-class Start extends Command {
+class Restart extends Command {
 
-    public CommandName: string = "start";
+    public CommandName: string = "restart";
 
-    public CommandDescription: string = "Starts the Factorio server";
+    public CommandDescription: string = "Restarts the Factorio server";
 
     public IsEphemeralResponse: boolean = true;
 
     public IsCommandBlocking: boolean = false;
 
-    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
-    {
+    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
 
-        if (!fs.existsSync(dataManager.WORLD_FILE))
-            return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
 
-        if (dataManager.SERVER_IS_ALIVE || await FactorioServerCommands.IsOnline())
-            return this.AddToMessage("Server is already Running.");
+        if (!(await FactorioServerCommands.IsOnline()))
+            return this.AddToMessage("Server is not Running, cannot Restart.");
+
+        this.AddToMessage("Shutting Down Server...");
+
+        let shutdownStatus = await FactorioServerCommands.Shutdown();
+
+        if (!shutdownStatus || await FactorioServerCommands.IsOnline())
+            return this.AddToMessage("Error Shutting Down Server. Please Check the Logs for more Information.");
+
+        this.AddToMessage("Server Shutdown! Waiting a Few Seconds to Restart...");
+
+        await new Promise(resolve => setTimeout(resolve, FactorioServerCommands.WAIT_TIME));
 
         this.AddToMessage(`Starting Server...`);
 
@@ -35,9 +43,7 @@ class Start extends Command {
         this.AddToMessage("Server Started!");
         this.AddToMessage("Connect to the Server using the Following Connection Info:");
         this.AddToMessage("```" + connectionInfo + "```");
-
-        dataManager.WORLD_CHOSEN = true;
     }
 }
 
-export = Start;
+export = Restart;
