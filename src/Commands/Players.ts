@@ -2,6 +2,7 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import FactorioServerCommands from "../FactorioServerCommands";
+import Time from "../Objects/Time";
 
 class Players extends Command {
 
@@ -18,27 +19,44 @@ class Players extends Command {
         let pingStatus = await FactorioServerCommands.IsOnline();
         let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
 
-
         dataManager.SERVER_IS_ALIVE = pingStatus;
 
-        if (!pingStatus) 
+        if (!pingStatus)
             return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
-    
-        playerDB.UpdateOnlinePlayers();
+
+        playerDB.Update();
+
+        let onlinePlayers = playerDB.GetOnlinePlayers();
+        let offlinePlayers = playerDB.GetOfflinePlayers();
 
         this.AddToMessage(`${dataManager.SERVER_NAME} Players :`);
-        this.AddToMessage("Players Online: ");
+        this.AddToMessage("Players Online: (Username - Playtime)");
 
-        if (playerDB.OnlinePlayers.length == 0)
+        if (onlinePlayers.length == 0)
             this.AddToMessage("No Players Online.");
         else
-        {
-            playerDB.OnlinePlayers.forEach(player => {
-                this.AddToMessage(player);
+            onlinePlayers.forEach(player => {
+                let playtime = new Time(playerDB.Players[player].GetTotalPlayTime()).GetTimeAsString();
+                let playtimeString = ` - ${playtime}`;
+                this.AddToMessage(player + playtimeString);
             });
-        }
 
-        // Add a Offline Section
+        this.AddToMessage("\nPlayers Offline: (Username - Playtime - Last Online)");
+
+        if (offlinePlayers.length == 0)
+            this.AddToMessage("No Players Offline.");
+        else
+            offlinePlayers.forEach(player => {
+                let playtime = new Time(playerDB.Players[player].GetTotalPlayTime()).GetTimeAsString();
+                let playtimeString = ` - ${playtime}`;
+
+                let loginIndex = playerDB.Players[player].DisconnectTimeStamps.length - 1;
+
+                let lastLogin = new Date().getTime() - playerDB.Players[player].DisconnectTimeStamps[loginIndex];
+                let lastLoginString = ` - ${new Time(lastLogin).GetTimeAsString()}`;
+
+                this.AddToMessage(player + playtimeString + lastLoginString);
+            });
     }
 }
 

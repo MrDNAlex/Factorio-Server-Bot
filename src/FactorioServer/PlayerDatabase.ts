@@ -6,19 +6,14 @@ import fs from "fs";
 class PlayerDatabase {
     public Players: Record<string, Player> = {};
 
-    public OnlinePlayers: string[];
-
     constructor(data?: any) {
-
-        this.OnlinePlayers = [];
-
         if (data && data.Players && typeof data.Players === "object") {
             for (const username in data.Players) {
                 if (data.Players.hasOwnProperty(username)) {
                     this.Players[username] = new Player(data.Players[username]);
                 }
             }
-        } else 
+        } else
             this.Players = {};
     }
 
@@ -43,7 +38,7 @@ class PlayerDatabase {
             this.Players[username].AddDisconnect(disconnectTime);
     }
 
-    public UpdateOnlinePlayers() {
+    public Update() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
@@ -65,18 +60,32 @@ class PlayerDatabase {
 
             this.AddDisconnect(username, new Date(timeStamp).getTime());
         });
+    }
 
-        this.OnlinePlayers = [];
+    public GetOnlinePlayers() {
+        let onlinePlayers = [];
 
         for (const player in this.Players) {
             if (this.Players[player].IsOnline())
-                this.OnlinePlayers.push(player);
+                onlinePlayers.push(player);
         }
+
+        return onlinePlayers
+    }
+
+    public GetOfflinePlayers() {
+        let offlinePlayers = [];
+
+        for (const player in this.Players) {
+            if (!this.Players[player].IsOnline())
+                offlinePlayers.push(player);
+        }
+
+        return offlinePlayers;
     }
 
     public ResetDB() {
         this.Players = {};
-        this.OnlinePlayers = [];
     }
 }
 

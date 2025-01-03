@@ -8,6 +8,7 @@ Bot.StartBot();
 
 let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
+dataManager.SERVER_IS_ALIVE = false;
 dataManager.CreateDirectories();
 dataManager.SERVER_MANAGER = new FactorioServerManager(dataManager.SERVER_MANAGER);
 

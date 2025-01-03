@@ -42,7 +42,7 @@ class FactorioServerManager {
             const username = leaveLine[1].replace(" left the game", "").trim();
             this.PlayerDB.AddDisconnect(username, new Date(timeStamp).getTime());
         });
-        this.PlayerDB.UpdateOnlinePlayers();
+        this.PlayerDB.Update();
         //const joinedUsernames = this.GetJoinedUsernames(joins);
         //const leftUsernames = this.GetLeftUsernames(leaves);
         //const allPlayers = Object.keys(joinedUsernames).concat(Object.keys(leftUsernames));
@@ -65,7 +65,7 @@ class FactorioServerManager {
         //            onlineUsernames.push(username);
         //    }
         //});
-        return this.PlayerDB.OnlinePlayers;
+        return this.PlayerDB.GetOnlinePlayers();
     }
     GetJoinedUsernames(joins) {
         let usernames = {};

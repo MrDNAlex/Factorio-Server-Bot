@@ -70,6 +70,11 @@ class FactorioServerBotDataManager extends BotDataManager {
             fs.mkdirSync(extras, { recursive: true });
     }
 
+    public Update()
+    {
+        this.SERVER_MANAGER.PlayerDB.Update();
+    }
+
 }
 
 export default FactorioServerBotDataManager;

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
 const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
+const Time_1 = __importDefault(require("../Objects/Time"));
 class Players extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -19,17 +20,31 @@ class Players extends dna_discord_framework_1.Command {
             dataManager.SERVER_IS_ALIVE = pingStatus;
             if (!pingStatus)
                 return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
-            playerDB.UpdateOnlinePlayers();
+            playerDB.Update();
+            let onlinePlayers = playerDB.GetOnlinePlayers();
+            let offlinePlayers = playerDB.GetOfflinePlayers();
             this.AddToMessage(`${dataManager.SERVER_NAME} Players :`);
-            this.AddToMessage("Players Online: ");
-            if (playerDB.OnlinePlayers.length == 0)
+            this.AddToMessage("Players Online: (Username - Playtime)");
+            if (onlinePlayers.length == 0)
                 this.AddToMessage("No Players Online.");
-            else {
-                playerDB.OnlinePlayers.forEach(player => {
-                    this.AddToMessage(player);
+            else
+                onlinePlayers.forEach(player => {
+                    let playtime = new Time_1.default(playerDB.Players[player].GetTotalPlayTime()).GetTimeAsString();
+                    let playtimeString = ` - ${playtime}`;
+                    this.AddToMessage(player + playtimeString);
                 });
-            }
-            // Add a Offline Section
+            this.AddToMessage("\nPlayers Offline: (Username - Playtime - Last Online)");
+            if (offlinePlayers.length == 0)
+                this.AddToMessage("No Players Offline.");
+            else
+                offlinePlayers.forEach(player => {
+                    let playtime = new Time_1.default(playerDB.Players[player].GetTotalPlayTime()).GetTimeAsString();
+                    let playtimeString = ` - ${playtime}`;
+                    let loginIndex = playerDB.Players[player].DisconnectTimeStamps.length - 1;
+                    let lastLogin = new Date().getTime() - playerDB.Players[player].DisconnectTimeStamps[loginIndex];
+                    let lastLoginString = ` - ${new Time_1.default(lastLogin).GetTimeAsString()}`;
+                    this.AddToMessage(player + playtimeString + lastLoginString);
+                });
         };
     }
 }

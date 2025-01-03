@@ -10,7 +10,6 @@ const fs_1 = __importDefault(require("fs"));
 class PlayerDatabase {
     constructor(data) {
         this.Players = {};
-        this.OnlinePlayers = [];
         if (data && data.Players && typeof data.Players === "object") {
             for (const username in data.Players) {
                 if (data.Players.hasOwnProperty(username)) {
@@ -38,7 +37,7 @@ class PlayerDatabase {
         if (username in this.Players)
             this.Players[username].AddDisconnect(disconnectTime);
     }
-    UpdateOnlinePlayers() {
+    Update() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
@@ -56,15 +55,25 @@ class PlayerDatabase {
             const username = leaveLine[1].replace(" left the game", "").trim();
             this.AddDisconnect(username, new Date(timeStamp).getTime());
         });
-        this.OnlinePlayers = [];
+    }
+    GetOnlinePlayers() {
+        let onlinePlayers = [];
         for (const player in this.Players) {
             if (this.Players[player].IsOnline())
-                this.OnlinePlayers.push(player);
+                onlinePlayers.push(player);
         }
+        return onlinePlayers;
+    }
+    GetOfflinePlayers() {
+        let offlinePlayers = [];
+        for (const player in this.Players) {
+            if (!this.Players[player].IsOnline())
+                offlinePlayers.push(player);
+        }
+        return offlinePlayers;
     }
     ResetDB() {
         this.Players = {};
-        this.OnlinePlayers = [];
     }
 }
 exports.default = PlayerDatabase;

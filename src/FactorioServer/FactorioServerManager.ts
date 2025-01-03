@@ -82,7 +82,7 @@ class FactorioServerManager {
             this.PlayerDB.AddDisconnect(username, new Date(timeStamp).getTime());
         });
 
-        this.PlayerDB.UpdateOnlinePlayers();
+        this.PlayerDB.Update();
 
 
 
@@ -110,7 +110,7 @@ class FactorioServerManager {
         //    }
         //});
 
-        return this.PlayerDB.OnlinePlayers;
+        return this.PlayerDB.GetOnlinePlayers();
     }
 
     private GetJoinedUsernames(joins: string[]): Record<string, number> {
