@@ -49,5 +49,8 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         if (!fs_1.default.existsSync(extras))
             fs_1.default.mkdirSync(extras, { recursive: true });
     }
+    Update() {
+        this.SERVER_MANAGER.PlayerDB.Update();
+    }
 }
 exports.default = FactorioServerBotDataManager;
