@@ -7,31 +7,31 @@ class FactorioServerBotDataManager extends BotDataManager {
 
     SERVER_MANAGER: FactorioServerManager = new FactorioServerManager();
 
-    BACKUP_DIRECTORY: string = "/home/factorio/Backups";
+    //BACKUP_DIRECTORY: string = "/home/factorio/Backups";
 
-    BACKUP_FILE: string = "/home/factorio/Backups/Backup.tar.gz";
+    //BACKUP_FILE: string = "/home/factorio/Backups/Backup.tar.gz";
 
-    EXTRA_BACKUP_DIRECTORY: string = "/home/factorio/Backups/Extras";
+    //EXTRA_BACKUP_DIRECTORY: string = "/home/factorio/Backups/Extras";
 
-    WORLD_FOLDER: string = "/home/factorio/World"
+    //WORLD_FOLDER: string = "/home/factorio/World"
 
-    WORLD_PREVIEW_IMAGE: string = "/home/factorio/World/Preview.png";
+    //WORLD_PREVIEW_IMAGE: string = "/home/factorio/World/Preview.png";
 
-    WORLD_FILE: string = "/home/factorio/World/World.zip";
+    //WORLD_FILE: string = "/home/factorio/World/World.zip";
 
-    WORLD_MAPGEN_SETTINGS: string = "/home/factorio/World/MapGenSettings.json";
+    //WORLD_MAPGEN_SETTINGS: string = "/home/factorio/World/MapGenSettings.json";
 
-    WORLD_INFO: string = "/home/factorio/World/WorldInfo.json";
+    //WORLD_INFO: string = "/home/factorio/World/WorldInfo.json";
 
     WORLD_CHOSEN: boolean = false;
 
-    SERVER_LOGS: string = "/home/factorio/World/WORLD_LOG.txt";
+    //SERVER_LOGS: string = "/home/factorio/World/WORLD_LOG.txt";
 
-    MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/MapGenTemplate.json";
+    //MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/MapGenTemplate.json";
 
-    SERVER_EXECUTABLE_PATH: string = "/Factorio/factorio/bin/x64";
+    //SERVER_EXECUTABLE_PATH: string = "/Factorio/factorio/bin/x64";
 
-    PREVIEWS_PATH: string = "/home/factorio/Previews";
+    //PREVIEWS_PATH: string = "/home/factorio/Previews";
 
     // The Default Port to Expose
     SERVER_PORT: number = 8213
@@ -74,6 +74,7 @@ class FactorioServerBotDataManager extends BotDataManager {
     {
         this.SERVER_MANAGER.PlayerDB.Update();
         this.SERVER_MANAGER.SaveWorldInfo(true);
+        this.SaveData();
     }
 
 }

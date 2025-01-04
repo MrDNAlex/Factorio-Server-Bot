@@ -18,6 +18,7 @@ class Start extends dna_discord_framework_1.Command {
             const hostname = interaction.options.getString("hostname");
             const worldChannel = interaction.options.getChannel("worldchannel");
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            dataManager.Update();
             if (!name)
                 return this.AddToMessage("Server Name not specified, a Name must be specified for the Server.");
             if (!hostname)

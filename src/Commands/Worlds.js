@@ -17,10 +17,11 @@ class Worlds extends dna_discord_framework_1.Command {
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let seed = interaction.options.getInteger("seed");
-            let seeds = fs_1.default.readdirSync(dataManager.PREVIEWS_PATH);
+            let seeds = fs_1.default.readdirSync(FactorioServerManager_1.default.PreviewDirectory);
+            dataManager.Update();
             if (seed) {
                 let seedDirectory = `SEED_${seed}`;
-                let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
+                let worldInfoPath = `${FactorioServerManager_1.default.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
                 if (!seeds.includes(seedDirectory))
                     return this.AddToMessage("Seed not Found. Could not Upload Preview");
                 if (!fs_1.default.existsSync(worldInfoPath))

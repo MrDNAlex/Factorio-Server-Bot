@@ -55,11 +55,16 @@ class LoadWorld extends Command {
         }
     }
 
+    /**
+     * Loads a World with the Specified Seed
+     * @param seed User specifie Seed to load 
+     * @returns Error Messages when Applicable
+     */
     public LoadSeed(seed: number) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let seedDirectory = "SEED_" + seed;
-        let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
-        let seeds = fs.readdirSync(dataManager.PREVIEWS_PATH);
+        let worldInfoPath = `${FactorioServerManager.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
+        let seeds = fs.readdirSync(FactorioServerManager.PreviewDirectory);
 
         if (!seeds.includes(seedDirectory))
             return this.AddToMessage("Seed not Found. Could not Load World");
@@ -70,16 +75,22 @@ class LoadWorld extends Command {
         const jsonData = JSON.parse(fs.readFileSync(worldInfoPath, 'utf8'));
         let worldManager = new FactorioServerManager(jsonData);
 
-        this.AddToMessage(`Loading Seed: ${seed}`);
+        this.AddToMessage(`Loading Seed: ${seed}...`);
 
         if (!worldManager.AllFilesExist())
             return this.AddToMessage("World Files are Missing. Could not Load World");
 
-        this,this.BackupCurrentWorld();
+        this.BackupCurrentWorld();
         this.ReplaceWorldData(worldManager);
         this.AddToMessage("World Loaded Successfully!");
     }
 
+    /**
+     * Loads a Factorio Server Bot Backup to the Server
+     * @param loadDir Directory to Download and check file format
+     * @param backup The Uploaded World file to Load
+     * @returns Error Messages when applicable
+     */
     public async LoadBackup(loadDir: string, backup: Attachment) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let runner = new BashScriptRunner();
@@ -115,24 +126,21 @@ class LoadWorld extends Command {
         dataManager.SERVER_MANAGER = worldManager;
     }
 
+    /**
+     * Tries to Load the Uplaoded ZIP World File To run on the Server
+     * @param loadDir Directory to Download and check file format
+     * @param backup The Uploaded World file to Load
+     * @returns Error Messages when applicable
+     */
     public async LoadZipBackup(loadDir: string, backup: Attachment) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let runner = new BashScriptRunner();
-        let control = path.join(loadDir, "World", "control.lua");
-        let description = path.join(loadDir, "World", "description.json");
-        let freeplay = path.join(loadDir, "World", "freeplay.lua");
-        let info = path.join(loadDir, "World", "info.json");
-        let level = path.join(loadDir, "World", "level.dat0");
-        let levelMetaData = path.join(loadDir, "World", "level.datmetadata");
-        let levelInit = path.join(loadDir, "World", "level-init.dat");
-        let script = path.join(loadDir, "World", "script.dat");
-        let locale = path.join(loadDir, "World", "locale");
         let worldGenManager = new WorldGenManager();
-        let seed = Math.floor(Math.random() * this.MaxSeed);;
+        let seed = Math.floor(Math.random() * this.MaxSeed);
 
         this.AddToMessage("Assigning Seed to World...");
 
-        while (fs.existsSync(path.join(dataManager.PREVIEWS_PATH, `SEED_${seed}`)))
+        while (fs.existsSync(path.join(FactorioServerManager.PreviewDirectory, `SEED_${seed}`)))
             seed = Math.floor(Math.random() * this.MaxSeed);
 
         worldGenManager.GenWorld(seed, backup);
@@ -148,19 +156,18 @@ class LoadWorld extends Command {
 
         this.AddToMessage("Checking File Format...");
 
-        if (!(fs.existsSync(control) && fs.existsSync(description) && fs.existsSync(freeplay) && fs.existsSync(info) && fs.existsSync(level) && fs.existsSync(levelMetaData) && fs.existsSync(levelInit) && fs.existsSync(script) && fs.existsSync(locale)))
+        if (!this.ZipFilesExist(loadDir))
             return this.AddToMessage("Unrecognizable Backup File Format. Files are Missing, Cannot Load World");
 
         this.BackupCurrentWorld();
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
+        this.DeleteFolder(FactorioServerManager.WorldDirectory);
 
         worldGenManager.ServerManager.SaveWorldInfo(false);
-        worldGenManager.ServerManager.SaveWorldInfo(true);
 
-        fs.cpSync(path.join(loadDir, "Load.zip"), path.join(dataManager.WORLD_FOLDER, "World.zip"));
-        fs.cpSync("/FactorioBot/src/Files/Factorio.png", path.join(dataManager.WORLD_FOLDER, "Preview.png"));
-        fs.cpSync("/FactorioBot/src/Files/MapGenTemplate.json", path.join(dataManager.WORLD_FOLDER, "MapGenSettings.json"));
-        fs.cpSync(path.join(dataManager.PREVIEWS_PATH, `SEED_${seed}`, "WorldInfo.json"), path.join(dataManager.WORLD_FOLDER, "WorldInfo.json"));
+        fs.cpSync(path.join(loadDir, "Load.zip"), FactorioServerManager.WorldFilePath);
+        fs.cpSync("/FactorioBot/src/Files/Factorio.png", FactorioServerManager.WorldImagePath);
+        fs.cpSync("/FactorioBot/src/Files/MapGenTemplate.json", FactorioServerManager.WorldSettingsPath);
+        fs.cpSync(worldGenManager.ServerManager.WorldInfo, FactorioServerManager.WorldInfoPath);
 
         this.DeleteFolder(loadDir);
 
@@ -168,8 +175,27 @@ class LoadWorld extends Command {
     }
 
     /**
-         * Deletes the Previous Data associated with the Seed
-         */
+     * Checks if the Uploaded Zip File is in the Correct Format
+     * @param loadDir The Directory at which the Zip File is Extracted
+     * @returns Boolean Flag | True if the Files Exist, False if the Files are Missing
+     */
+    public ZipFilesExist(loadDir: string) {
+        let control = path.join(loadDir, "World", "control.lua");
+        let description = path.join(loadDir, "World", "description.json");
+        let freeplay = path.join(loadDir, "World", "freeplay.lua");
+        let info = path.join(loadDir, "World", "info.json");
+        let level = path.join(loadDir, "World", "level.dat0");
+        let levelMetaData = path.join(loadDir, "World", "level.datmetadata");
+        let levelInit = path.join(loadDir, "World", "level-init.dat");
+        let script = path.join(loadDir, "World", "script.dat");
+        let locale = path.join(loadDir, "World", "locale");
+
+        return fs.existsSync(control) && fs.existsSync(description) && fs.existsSync(freeplay) && fs.existsSync(info) && fs.existsSync(level) && fs.existsSync(levelMetaData) && fs.existsSync(levelInit) && fs.existsSync(script) && fs.existsSync(locale);
+    }
+
+    /**
+     * Deletes the Previous Data associated with the Seed
+     */
     public DeleteFolder(directoryPath: string) {
         const files = fs.readdirSync(directoryPath);
 
@@ -191,7 +217,7 @@ class LoadWorld extends Command {
     public ReplaceWorldData(worldInfo: FactorioServerManager) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
+        this.DeleteFolder(FactorioServerManager.WorldDirectory);
 
         fs.cpSync(worldInfo.WorldImage, FactorioServerManager.WorldImagePath);
         fs.cpSync(worldInfo.WorldFile, FactorioServerManager.WorldFilePath);
@@ -201,6 +227,9 @@ class LoadWorld extends Command {
         dataManager.SERVER_MANAGER = worldInfo;
     }
 
+    /**
+     * Backs up the Current World Files
+     */
     public BackupCurrentWorld() {
         let serverManager = BotData.Instance(FactorioServerBotDataManager).SERVER_MANAGER;
 

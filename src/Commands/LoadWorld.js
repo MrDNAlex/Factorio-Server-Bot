@@ -56,24 +56,35 @@ class LoadWorld extends dna_discord_framework_1.Command {
             }
         ];
     }
+    /**
+     * Loads a World with the Specified Seed
+     * @param seed User specifie Seed to load
+     * @returns Error Messages when Applicable
+     */
     LoadSeed(seed) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         let seedDirectory = "SEED_" + seed;
-        let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
-        let seeds = fs_1.default.readdirSync(dataManager.PREVIEWS_PATH);
+        let worldInfoPath = `${FactorioServerManager_1.default.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
+        let seeds = fs_1.default.readdirSync(FactorioServerManager_1.default.PreviewDirectory);
         if (!seeds.includes(seedDirectory))
             return this.AddToMessage("Seed not Found. Could not Load World");
         if (!fs_1.default.existsSync(worldInfoPath))
             return this.AddToMessage("World Info is Missing. Could not Load World");
         const jsonData = JSON.parse(fs_1.default.readFileSync(worldInfoPath, 'utf8'));
         let worldManager = new FactorioServerManager_1.default(jsonData);
-        this.AddToMessage(`Loading Seed: ${seed}`);
+        this.AddToMessage(`Loading Seed: ${seed}...`);
         if (!worldManager.AllFilesExist())
             return this.AddToMessage("World Files are Missing. Could not Load World");
-        this, this.BackupCurrentWorld();
+        this.BackupCurrentWorld();
         this.ReplaceWorldData(worldManager);
         this.AddToMessage("World Loaded Successfully!");
     }
+    /**
+     * Loads a Factorio Server Bot Backup to the Server
+     * @param loadDir Directory to Download and check file format
+     * @param backup The Uploaded World file to Load
+     * @returns Error Messages when applicable
+     */
     async LoadBackup(loadDir, backup) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         let runner = new dna_discord_framework_1.BashScriptRunner();
@@ -100,23 +111,19 @@ class LoadWorld extends dna_discord_framework_1.Command {
         this.DeleteFolder(loadDir);
         dataManager.SERVER_MANAGER = worldManager;
     }
+    /**
+     * Tries to Load the Uplaoded ZIP World File To run on the Server
+     * @param loadDir Directory to Download and check file format
+     * @param backup The Uploaded World file to Load
+     * @returns Error Messages when applicable
+     */
     async LoadZipBackup(loadDir, backup) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         let runner = new dna_discord_framework_1.BashScriptRunner();
-        let control = path_1.default.join(loadDir, "World", "control.lua");
-        let description = path_1.default.join(loadDir, "World", "description.json");
-        let freeplay = path_1.default.join(loadDir, "World", "freeplay.lua");
-        let info = path_1.default.join(loadDir, "World", "info.json");
-        let level = path_1.default.join(loadDir, "World", "level.dat0");
-        let levelMetaData = path_1.default.join(loadDir, "World", "level.datmetadata");
-        let levelInit = path_1.default.join(loadDir, "World", "level-init.dat");
-        let script = path_1.default.join(loadDir, "World", "script.dat");
-        let locale = path_1.default.join(loadDir, "World", "locale");
         let worldGenManager = new WorldGenManager_1.default();
         let seed = Math.floor(Math.random() * this.MaxSeed);
-        ;
         this.AddToMessage("Assigning Seed to World...");
-        while (fs_1.default.existsSync(path_1.default.join(dataManager.PREVIEWS_PATH, `SEED_${seed}`)))
+        while (fs_1.default.existsSync(path_1.default.join(FactorioServerManager_1.default.PreviewDirectory, `SEED_${seed}`)))
             seed = Math.floor(Math.random() * this.MaxSeed);
         worldGenManager.GenWorld(seed, backup);
         this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
@@ -126,22 +133,38 @@ class LoadWorld extends dna_discord_framework_1.Command {
             this.AddToMessage("Error Loading Backup. Please Check the Logs for more Information.");
         });
         this.AddToMessage("Checking File Format...");
-        if (!(fs_1.default.existsSync(control) && fs_1.default.existsSync(description) && fs_1.default.existsSync(freeplay) && fs_1.default.existsSync(info) && fs_1.default.existsSync(level) && fs_1.default.existsSync(levelMetaData) && fs_1.default.existsSync(levelInit) && fs_1.default.existsSync(script) && fs_1.default.existsSync(locale)))
+        if (!this.ZipFilesExist(loadDir))
             return this.AddToMessage("Unrecognizable Backup File Format. Files are Missing, Cannot Load World");
         this.BackupCurrentWorld();
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
+        this.DeleteFolder(FactorioServerManager_1.default.WorldDirectory);
         worldGenManager.ServerManager.SaveWorldInfo(false);
-        worldGenManager.ServerManager.SaveWorldInfo(true);
-        fs_1.default.cpSync(path_1.default.join(loadDir, "Load.zip"), path_1.default.join(dataManager.WORLD_FOLDER, "World.zip"));
-        fs_1.default.cpSync("/FactorioBot/src/Files/Factorio.png", path_1.default.join(dataManager.WORLD_FOLDER, "Preview.png"));
-        fs_1.default.cpSync("/FactorioBot/src/Files/MapGenTemplate.json", path_1.default.join(dataManager.WORLD_FOLDER, "MapGenSettings.json"));
-        fs_1.default.cpSync(path_1.default.join(dataManager.PREVIEWS_PATH, `SEED_${seed}`, "WorldInfo.json"), path_1.default.join(dataManager.WORLD_FOLDER, "WorldInfo.json"));
+        fs_1.default.cpSync(path_1.default.join(loadDir, "Load.zip"), FactorioServerManager_1.default.WorldFilePath);
+        fs_1.default.cpSync("/FactorioBot/src/Files/Factorio.png", FactorioServerManager_1.default.WorldImagePath);
+        fs_1.default.cpSync("/FactorioBot/src/Files/MapGenTemplate.json", FactorioServerManager_1.default.WorldSettingsPath);
+        fs_1.default.cpSync(worldGenManager.ServerManager.WorldInfo, FactorioServerManager_1.default.WorldInfoPath);
         this.DeleteFolder(loadDir);
         dataManager.SERVER_MANAGER = worldGenManager.ServerManager;
     }
     /**
-         * Deletes the Previous Data associated with the Seed
-         */
+     * Checks if the Uploaded Zip File is in the Correct Format
+     * @param loadDir The Directory at which the Zip File is Extracted
+     * @returns Boolean Flag | True if the Files Exist, False if the Files are Missing
+     */
+    ZipFilesExist(loadDir) {
+        let control = path_1.default.join(loadDir, "World", "control.lua");
+        let description = path_1.default.join(loadDir, "World", "description.json");
+        let freeplay = path_1.default.join(loadDir, "World", "freeplay.lua");
+        let info = path_1.default.join(loadDir, "World", "info.json");
+        let level = path_1.default.join(loadDir, "World", "level.dat0");
+        let levelMetaData = path_1.default.join(loadDir, "World", "level.datmetadata");
+        let levelInit = path_1.default.join(loadDir, "World", "level-init.dat");
+        let script = path_1.default.join(loadDir, "World", "script.dat");
+        let locale = path_1.default.join(loadDir, "World", "locale");
+        return fs_1.default.existsSync(control) && fs_1.default.existsSync(description) && fs_1.default.existsSync(freeplay) && fs_1.default.existsSync(info) && fs_1.default.existsSync(level) && fs_1.default.existsSync(levelMetaData) && fs_1.default.existsSync(levelInit) && fs_1.default.existsSync(script) && fs_1.default.existsSync(locale);
+    }
+    /**
+     * Deletes the Previous Data associated with the Seed
+     */
     DeleteFolder(directoryPath) {
         const files = fs_1.default.readdirSync(directoryPath);
         for (const file of files) {
@@ -159,13 +182,16 @@ class LoadWorld extends dna_discord_framework_1.Command {
      */
     ReplaceWorldData(worldInfo) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
+        this.DeleteFolder(FactorioServerManager_1.default.WorldDirectory);
         fs_1.default.cpSync(worldInfo.WorldImage, FactorioServerManager_1.default.WorldImagePath);
         fs_1.default.cpSync(worldInfo.WorldFile, FactorioServerManager_1.default.WorldFilePath);
         fs_1.default.cpSync(worldInfo.WorldSettings, FactorioServerManager_1.default.WorldSettingsPath);
         fs_1.default.cpSync(worldInfo.WorldInfo, FactorioServerManager_1.default.WorldInfoPath);
         dataManager.SERVER_MANAGER = worldInfo;
     }
+    /**
+     * Backs up the Current World Files
+     */
     BackupCurrentWorld() {
         let serverManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default).SERVER_MANAGER;
         this.DeleteFolder(serverManager.WorldDirectory);

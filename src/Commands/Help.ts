@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 
 class Help extends Command {
     public CommandName: string = "help";
@@ -17,6 +18,8 @@ class Help extends Command {
         let createServerCommand = "'/start'";
         let setupCommand = "`/setup`";
 
+        dataManager.Update();
+
         let message = `Hello! I am the Engineers Assistant! I am here to help you, the Engineer, set up a Factorio Server.`;
 
         this.AddToMessage(message);
@@ -29,7 +32,7 @@ class Help extends Command {
 
         this.AddToMessage(createServer);
 
-        this.AddFileToMessage(dataManager.MAP_GEN_TEMPLATE);
+        this.AddFileToMessage(FactorioServerManager.MapGenTemplate);
     }
 
     public IsEphemeralResponse: boolean = true;

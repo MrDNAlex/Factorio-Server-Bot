@@ -11,19 +11,19 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         //Current World Files
         super(...arguments);
         this.SERVER_MANAGER = new FactorioServerManager_1.default();
-        this.BACKUP_DIRECTORY = "/home/factorio/Backups";
-        this.BACKUP_FILE = "/home/factorio/Backups/Backup.tar.gz";
-        this.EXTRA_BACKUP_DIRECTORY = "/home/factorio/Backups/Extras";
-        this.WORLD_FOLDER = "/home/factorio/World";
-        this.WORLD_PREVIEW_IMAGE = "/home/factorio/World/Preview.png";
-        this.WORLD_FILE = "/home/factorio/World/World.zip";
-        this.WORLD_MAPGEN_SETTINGS = "/home/factorio/World/MapGenSettings.json";
-        this.WORLD_INFO = "/home/factorio/World/WorldInfo.json";
+        //BACKUP_DIRECTORY: string = "/home/factorio/Backups";
+        //BACKUP_FILE: string = "/home/factorio/Backups/Backup.tar.gz";
+        //EXTRA_BACKUP_DIRECTORY: string = "/home/factorio/Backups/Extras";
+        //WORLD_FOLDER: string = "/home/factorio/World"
+        //WORLD_PREVIEW_IMAGE: string = "/home/factorio/World/Preview.png";
+        //WORLD_FILE: string = "/home/factorio/World/World.zip";
+        //WORLD_MAPGEN_SETTINGS: string = "/home/factorio/World/MapGenSettings.json";
+        //WORLD_INFO: string = "/home/factorio/World/WorldInfo.json";
         this.WORLD_CHOSEN = false;
-        this.SERVER_LOGS = "/home/factorio/World/WORLD_LOG.txt";
-        this.MAP_GEN_TEMPLATE = "/FactorioBot/src/Files/MapGenTemplate.json";
-        this.SERVER_EXECUTABLE_PATH = "/Factorio/factorio/bin/x64";
-        this.PREVIEWS_PATH = "/home/factorio/Previews";
+        //SERVER_LOGS: string = "/home/factorio/World/WORLD_LOG.txt";
+        //MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/MapGenTemplate.json";
+        //SERVER_EXECUTABLE_PATH: string = "/Factorio/factorio/bin/x64";
+        //PREVIEWS_PATH: string = "/home/factorio/Previews";
         // The Default Port to Expose
         this.SERVER_PORT = 8213;
         //Server Host name / IP Address
@@ -52,6 +52,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
     Update() {
         this.SERVER_MANAGER.PlayerDB.Update();
         this.SERVER_MANAGER.SaveWorldInfo(true);
+        this.SaveData();
     }
 }
 exports.default = FactorioServerBotDataManager;

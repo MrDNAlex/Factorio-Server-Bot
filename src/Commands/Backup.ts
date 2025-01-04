@@ -3,6 +3,7 @@ import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import fsp from "fs/promises";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 
 class Backup extends Command {
 
@@ -19,6 +20,8 @@ class Backup extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let serverManager = dataManager.SERVER_MANAGER;
+
+        dataManager.Update();
        
         this.AddToMessage("Creating Backup of World...");
 
@@ -29,10 +32,10 @@ class Backup extends Command {
 
         this.AddToMessage("Backup Created Successfully!");
 
-        const fileStats = await fsp.stat(dataManager.BACKUP_FILE);
+        const fileStats = await fsp.stat(FactorioServerManager.BackupFile);
 
         if (fileStats.size < this.MB_25)
-            this.AddFileToMessage(dataManager.BACKUP_FILE);
+            this.AddFileToMessage(FactorioServerManager.BackupFile);
         else
             this.AddToMessage("Backup File is too large to send, please download it from the server");
     }

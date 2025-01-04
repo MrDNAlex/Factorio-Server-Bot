@@ -18,6 +18,8 @@ class Players extends Command {
         let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
         let serverManager = dataManager.SERVER_MANAGER;
 
+        dataManager.Update();
+
         if (!await serverManager.IsOnline())
             return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
 

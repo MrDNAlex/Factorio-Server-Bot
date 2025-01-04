@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 const fs_1 = __importDefault(require("fs"));
 class Start extends dna_discord_framework_1.Command {
     constructor() {
@@ -16,7 +17,8 @@ class Start extends dna_discord_framework_1.Command {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
             let serverManager = dataManager.SERVER_MANAGER;
-            if (!fs_1.default.existsSync(dataManager.WORLD_FILE))
+            dataManager.Update();
+            if (!fs_1.default.existsSync(FactorioServerManager_1.default.WorldFilePath))
                 return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
             if (await serverManager.IsOnline())
                 return this.AddToMessage("Server is already Running.");

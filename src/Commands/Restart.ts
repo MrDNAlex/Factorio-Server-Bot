@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import { server } from "typescript";
 
 class Restart extends Command {
 
@@ -17,6 +18,7 @@ class Restart extends Command {
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
         let serverManager = dataManager.SERVER_MANAGER;
 
+        dataManager.Update();
 
         if (!(await serverManager.IsOnline()))
             return this.AddToMessage("Server is not Running, cannot Restart.");
@@ -24,6 +26,9 @@ class Restart extends Command {
         this.AddToMessage("Shutting Down Server...");
 
         let shutdownStatus = await serverManager.Shutdown();
+
+        // Secretly Backup the Server
+        await serverManager.Backup();
 
         if (!shutdownStatus || await serverManager.IsOnline())
             return this.AddToMessage("Error Shutting Down Server. Please Check the Logs for more Information.");

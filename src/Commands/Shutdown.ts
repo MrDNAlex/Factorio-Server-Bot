@@ -17,6 +17,8 @@ class Shutdown extends Command {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let serverManager = dataManager.SERVER_MANAGER;
 
+        dataManager.Update();
+
         if (!(await serverManager.IsOnline())) 
             return this.AddToMessage("Server is not Running, Nothing to Shutdown");
 

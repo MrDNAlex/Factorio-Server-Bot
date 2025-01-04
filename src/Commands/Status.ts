@@ -24,7 +24,9 @@ class Status extends Command {
         let backupTime = new Date().getTime() - dataManager.LAST_BACKUP_DATE;
         let backupTimeString = new Time(backupTime).GetTimeAsString();
 
-        this.AddFileToMessage(dataManager.SERVER_LOGS);
+        dataManager.Update();
+
+        this.AddFileToMessage(FactorioServerManager.ServerLogs);
 
         if (!pingStatus) 
             return this.AddToMessage("Server is Offline, Status cannot be retrieved.");

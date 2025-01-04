@@ -16,6 +16,12 @@ class BackupManager {
         this.ContentDir = contentDir;
     }
 
+    /**
+     * Creates a New Tar.gz Backup of the Server
+     * @param dataManager Data Manager to Log Errors
+     * @param backupName Name of the Backup File (Default: Backup)
+     * @returns Success Status of Backup Creation
+     */
     public async CreateBackup<T extends IBotDataManager>(dataManager: T, backupName: string = "Backup"): Promise<boolean> {
         let runner = new BashScriptRunner();
         let success = true;
@@ -45,6 +51,10 @@ class BackupManager {
         return success;
     }
 
+    /**
+     * Gets all the Backup Files in the Extra Backup Directory Sorted from Oldest to Newest
+     * @returns List of Backup Files Sorted from Oldest to Newest
+     */
     private GetOldestBackupFile(): string {
 
         let files = fs.readdirSync(this.ExtraBackupsDir);
@@ -64,6 +74,10 @@ class BackupManager {
         return files[0];
     }
 
+    /**
+     * Manages Backups Files by deleting oldest files until the maxBackups is reached
+     * @param maxBackups The max number of extra backups to keep
+     */
     public ManageBackupFiles(maxBackups: number): void {
         let maxLoop = 0;
         while (fs.readdirSync(this.ExtraBackupsDir).length > maxBackups && maxLoop < 50) {

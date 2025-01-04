@@ -2,6 +2,7 @@ import { BotData } from "dna-discord-framework";
 import Player from "./Player";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
+import FactorioServerManager from "./FactorioServerManager";
 
 class PlayerDatabase {
     public Players: Record<string, Player> = {};
@@ -41,10 +42,10 @@ class PlayerDatabase {
     public Update() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
-        if (!fs.existsSync(dataManager.SERVER_LOGS))
+        if (!fs.existsSync(FactorioServerManager.ServerLogs))
             return;
 
-        const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
+        const lines = fs.readFileSync(FactorioServerManager.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
 

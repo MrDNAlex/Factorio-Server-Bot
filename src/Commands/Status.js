@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 const Time_1 = __importDefault(require("../Objects/Time"));
 class Status extends dna_discord_framework_1.Command {
     constructor() {
@@ -20,7 +21,8 @@ class Status extends dna_discord_framework_1.Command {
             let uptimeString = new Time_1.default(uptime).GetTimeAsString();
             let backupTime = new Date().getTime() - dataManager.LAST_BACKUP_DATE;
             let backupTimeString = new Time_1.default(backupTime).GetTimeAsString();
-            this.AddFileToMessage(dataManager.SERVER_LOGS);
+            dataManager.Update();
+            this.AddFileToMessage(FactorioServerManager_1.default.ServerLogs);
             if (!pingStatus)
                 return this.AddToMessage("Server is Offline, Status cannot be retrieved.");
             dataManager.SERVER_MANAGER.PlayerDB.Update();

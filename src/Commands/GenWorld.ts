@@ -29,6 +29,8 @@ class GenWorld extends Command {
         let seed = Math.floor(Math.random() * this.MaxSeed);
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
+        dataManager.Update();
+
         if (await dataManager.SERVER_MANAGER.IsOnline())
             return this.AddToMessage("Server cannot be Running when Generating a World.");
 
@@ -48,10 +50,11 @@ class GenWorld extends Command {
 
         let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
 
-        worldGenManager.ServerManager.SaveWorldInfo(false);
-
         if (!worldImageStatus || !(fs.existsSync(worldGenManager.ServerManager.WorldImage)))
             return this.AddToMessage("Error Generatting World Image : Try Again");
+
+        if (worldImageStatus)
+            worldGenManager.ServerManager.SaveWorldInfo(false);
 
         if (!(fs.fstatSync(fs.openSync(worldGenManager.ServerManager.WorldImage, 'r')).size < this.MB_25))
             this.AddToMessage("Map Image is too large to send, please download it from the server");
@@ -121,14 +124,12 @@ class GenWorld extends Command {
      * @param worldInfo 
      */
     public ReplaceWorldData(worldInfo: FactorioServerManager) {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        this.DeleteFolder(FactorioServerManager.WorldDirectory);
 
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
-
-        fs.cpSync(worldInfo.WorldImage, dataManager.WORLD_PREVIEW_IMAGE);
-        fs.cpSync(worldInfo.WorldFile, dataManager.WORLD_FILE);
-        fs.cpSync(worldInfo.WorldSettings, dataManager.WORLD_MAPGEN_SETTINGS);
-        fs.cpSync(worldInfo.WorldInfo, dataManager.WORLD_INFO);
+        fs.cpSync(worldInfo.WorldImage, FactorioServerManager.WorldImagePath);
+        fs.cpSync(worldInfo.WorldFile, FactorioServerManager.WorldFilePath);
+        fs.cpSync(worldInfo.WorldSettings, FactorioServerManager.WorldSettingsPath);
+        fs.cpSync(worldInfo.WorldInfo, FactorioServerManager.WorldInfoPath);
     }
 
     Options: ICommandOption[] = [

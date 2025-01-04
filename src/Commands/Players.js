@@ -16,6 +16,7 @@ class Players extends dna_discord_framework_1.Command {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
             let serverManager = dataManager.SERVER_MANAGER;
+            dataManager.Update();
             if (!await serverManager.IsOnline())
                 return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
             playerDB.Update();

@@ -2,7 +2,6 @@ import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
-import WorldInfo from "../WorldInfo";
 import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 
 class Worlds extends Command {
@@ -20,11 +19,13 @@ class Worlds extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let seed = interaction.options.getInteger("seed");
-        let seeds = fs.readdirSync(dataManager.PREVIEWS_PATH);
+        let seeds = fs.readdirSync(FactorioServerManager.PreviewDirectory);
+
+        dataManager.Update();
 
         if (seed) {
             let seedDirectory = `SEED_${seed}`;
-            let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
+            let worldInfoPath = `${FactorioServerManager.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
 
             if (!seeds.includes(seedDirectory))
                 return this.AddToMessage("Seed not Found. Could not Upload Preview");

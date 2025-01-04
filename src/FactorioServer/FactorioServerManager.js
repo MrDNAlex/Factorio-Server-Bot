@@ -12,7 +12,7 @@ const FactorioExecutableCommands_1 = __importDefault(require("../Enums/FactorioE
 class FactorioServerManager {
     constructor(data) {
         /**
-         * Time to Wait for the Server to Shutdown
+         * Time to Wait for Server Actions
          */
         this.ActionWaitTime = 3000;
         if (data) {
@@ -27,11 +27,6 @@ class FactorioServerManager {
             this.WorldFile = data.WorldFile;
             this.WorldImageSize = data.WorldImageSize;
             this.WorldInfo = data.WorldInfo;
-            //this.BackupWorldDirectory = data.BackupWorldDirectory;
-            //this.BackupWorldSettings = data.BackupWorldSettings;
-            //this.BackupWorldImage = data.BackupWorldImage;
-            //this.BackupWorldFile = data.BackupWorldFile;
-            //this.BackupWorldInfo = data.BackupWorldInfo;
         }
         else {
             this.Name = "Factorio Server";
@@ -44,11 +39,6 @@ class FactorioServerManager {
             this.WorldImage = "";
             this.WorldFile = "";
             this.WorldInfo = "";
-            //this.BackupWorldDirectory = "";
-            //this.BackupWorldSettings = "";
-            //this.BackupWorldImage = "";
-            //this.BackupWorldFile = "";
-            //this.BackupWorldInfo = "";
             this.WorldImageSize = 0;
         }
     }
@@ -88,7 +78,7 @@ class FactorioServerManager {
     async Start() {
         let start = new dna_discord_framework_1.BashScriptRunner();
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        let startCommand = `factorio ${FactorioExecutableCommands_1.default.StartServer} ${FactorioServerManager.WorldFilePath} --port ${dataManager.SERVER_PORT} > ${dataManager.SERVER_LOGS} 2>&1 &`;
+        let startCommand = `factorio ${FactorioExecutableCommands_1.default.StartServer} ${FactorioServerManager.WorldFilePath} --port ${dataManager.SERVER_PORT} > ${FactorioServerManager.ServerLogs} 2>&1 &`;
         let success = true;
         start.RunLocally(startCommand, true).catch((err) => {
             if (err.code === undefined)
@@ -125,7 +115,7 @@ class FactorioServerManager {
      */
     GetPlayers() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
+        const lines = fs_1.default.readFileSync(FactorioServerManager.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
         joins.forEach((join) => {
@@ -150,7 +140,7 @@ class FactorioServerManager {
      */
     async Backup() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        let backupManager = new BackupManager_1.default(dataManager.BACKUP_DIRECTORY, dataManager.EXTRA_BACKUP_DIRECTORY, dataManager.WORLD_FOLDER);
+        let backupManager = new BackupManager_1.default(FactorioServerManager.BackupDirectory, FactorioServerManager.ExtraBackupDirectory, FactorioServerManager.WorldDirectory);
         let backupSuccess = await backupManager.CreateBackup(dataManager, "Backup");
         backupManager.ManageBackupFiles(5);
         dataManager.LAST_BACKUP_DATE = new Date().getTime();
@@ -163,19 +153,16 @@ class FactorioServerManager {
             fs_1.default.writeFileSync(this.WorldInfo, JSON.stringify(this, null, 4));
     }
 }
-//public BackupWorldDirectory: string;
-//
-//public BackupWorldSettings: string;
-//
-//public BackupWorldImage: string;
-//
-//public BackupWorldFile: string;
-//
-//public BackupWorldInfo: string;
 // Files
 FactorioServerManager.WorldDirectory = "/home/factorio/World";
 FactorioServerManager.WorldImagePath = "/home/factorio/World/Preview.png";
 FactorioServerManager.WorldFilePath = "/home/factorio/World/World.zip";
 FactorioServerManager.WorldSettingsPath = "/home/factorio/World/MapGenSettings.json";
 FactorioServerManager.WorldInfoPath = "/home/factorio/World/WorldInfo.json";
+FactorioServerManager.BackupDirectory = "/home/factorio/Backups";
+FactorioServerManager.ExtraBackupDirectory = "/home/factorio/Backups/Extras";
+FactorioServerManager.BackupFile = "/home/factorio/Backups/Backup.tar.gz";
+FactorioServerManager.PreviewDirectory = "/home/factorio/Previews";
+FactorioServerManager.ServerLogs = "/home/factorio/World/WORLD_LOG.txt";
+FactorioServerManager.MapGenTemplate = "/FactorioBot/src/Files/MapGenTemplate.json";
 exports.default = FactorioServerManager;

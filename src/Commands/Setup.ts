@@ -21,6 +21,8 @@ class Start extends Command {
 
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
+        dataManager.Update();
+
         if (!name)
             return this.AddToMessage("Server Name not specified, a Name must be specified for the Server.");
 

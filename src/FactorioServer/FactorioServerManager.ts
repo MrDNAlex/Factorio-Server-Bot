@@ -4,6 +4,7 @@ import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import BackupManager from "../BackupManager";
 import FactorioExecutableCommands from "../Enums/FactorioExecutableCommands";
+import { server } from "typescript";
 
 class FactorioServerManager {
 
@@ -23,7 +24,7 @@ class FactorioServerManager {
     PlayerDB: PlayerDatabase;
 
     /**
-     * Time to Wait for the Server to Shutdown
+     * Time to Wait for Server Actions
      */
     ActionWaitTime = 3000;
 
@@ -49,16 +50,6 @@ class FactorioServerManager {
 
     public WorldInfo: string;
 
-    //public BackupWorldDirectory: string;
-    //
-    //public BackupWorldSettings: string;
-    //
-    //public BackupWorldImage: string;
-    //
-    //public BackupWorldFile: string;
-    //
-    //public BackupWorldInfo: string;
-
     // Files
 
     public static WorldDirectory = "/home/factorio/World";
@@ -70,6 +61,18 @@ class FactorioServerManager {
     public static WorldSettingsPath = "/home/factorio/World/MapGenSettings.json";
 
     public static WorldInfoPath = "/home/factorio/World/WorldInfo.json";
+
+    public static BackupDirectory: string = "/home/factorio/Backups";
+
+    public static ExtraBackupDirectory: string = "/home/factorio/Backups/Extras";
+
+    public static BackupFile: string = "/home/factorio/Backups/Backup.tar.gz";
+
+    public static PreviewDirectory: string = "/home/factorio/Previews";
+
+    public static ServerLogs = "/home/factorio/World/WORLD_LOG.txt";
+
+    public static MapGenTemplate = "/FactorioBot/src/Files/MapGenTemplate.json";
 
     constructor(data?: any) {
 
@@ -86,13 +89,6 @@ class FactorioServerManager {
             this.WorldFile = data.WorldFile;
             this.WorldImageSize = data.WorldImageSize;
             this.WorldInfo = data.WorldInfo;
-
-            //this.BackupWorldDirectory = data.BackupWorldDirectory;
-            //this.BackupWorldSettings = data.BackupWorldSettings;
-            //this.BackupWorldImage = data.BackupWorldImage;
-            //this.BackupWorldFile = data.BackupWorldFile;
-            //this.BackupWorldInfo = data.BackupWorldInfo;
-
         } else {
             this.Name = "Factorio Server";
             this.StartTime = 0;
@@ -105,11 +101,6 @@ class FactorioServerManager {
             this.WorldImage = "";
             this.WorldFile = "";
             this.WorldInfo = "";
-            //this.BackupWorldDirectory = "";
-            //this.BackupWorldSettings = "";
-            //this.BackupWorldImage = "";
-            //this.BackupWorldFile = "";
-            //this.BackupWorldInfo = "";
             this.WorldImageSize = 0;
         }
     }
@@ -159,7 +150,7 @@ class FactorioServerManager {
     public async Start(): Promise<boolean> {
         let start = new BashScriptRunner();
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let startCommand = `factorio ${FactorioExecutableCommands.StartServer} ${FactorioServerManager.WorldFilePath} --port ${dataManager.SERVER_PORT} > ${dataManager.SERVER_LOGS} 2>&1 &`;
+        let startCommand = `factorio ${FactorioExecutableCommands.StartServer} ${FactorioServerManager.WorldFilePath} --port ${dataManager.SERVER_PORT} > ${FactorioServerManager.ServerLogs} 2>&1 &`;
         let success = true;
 
         start.RunLocally(startCommand, true).catch((err) => {
@@ -205,7 +196,7 @@ class FactorioServerManager {
      */
     public GetPlayers() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
+        const lines = fs.readFileSync(FactorioServerManager.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
 
@@ -237,7 +228,7 @@ class FactorioServerManager {
      */
     public async Backup(): Promise<boolean> {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let backupManager = new BackupManager(dataManager.BACKUP_DIRECTORY, dataManager.EXTRA_BACKUP_DIRECTORY, dataManager.WORLD_FOLDER);
+        let backupManager = new BackupManager(FactorioServerManager.BackupDirectory, FactorioServerManager.ExtraBackupDirectory, FactorioServerManager.WorldDirectory);
         let backupSuccess = await backupManager.CreateBackup(dataManager, "Backup");
 
         backupManager.ManageBackupFiles(5);
@@ -245,6 +236,21 @@ class FactorioServerManager {
         dataManager.LAST_BACKUP_DATE = new Date().getTime();
 
         return backupSuccess;
+    }
+
+    public static async AutoBackup() {
+        let Mins10 = 1000 * 60 * 10;
+        while (true) {
+            let dataManager = BotData.Instance(FactorioServerBotDataManager);
+            let serverManager = dataManager.SERVER_MANAGER;
+
+            if (await serverManager.IsOnline() && !await serverManager.Backup())
+                console.log("Error creating backup");
+            else
+                console.log("Backup Created Successfully! or not online!");
+
+            await new Promise(resolve => setTimeout(resolve, Mins10));
+        }
     }
 
     public SaveWorldInfo(isGlobal: boolean) {

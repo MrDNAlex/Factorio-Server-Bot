@@ -14,6 +14,7 @@ class Shutdown extends dna_discord_framework_1.Command {
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let serverManager = dataManager.SERVER_MANAGER;
+            dataManager.Update();
             if (!(await serverManager.IsOnline()))
                 return this.AddToMessage("Server is not Running, Nothing to Shutdown");
             this.AddToMessage("Shutting Down Server...");

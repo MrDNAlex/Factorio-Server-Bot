@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
 const promises_1 = __importDefault(require("fs/promises"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 class Backup extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -16,14 +17,15 @@ class Backup extends dna_discord_framework_1.Command {
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let serverManager = dataManager.SERVER_MANAGER;
+            dataManager.Update();
             this.AddToMessage("Creating Backup of World...");
             let backupSuccess = await serverManager.Backup();
             if (!backupSuccess)
                 return this.AddToMessage("Error creating backup");
             this.AddToMessage("Backup Created Successfully!");
-            const fileStats = await promises_1.default.stat(dataManager.BACKUP_FILE);
+            const fileStats = await promises_1.default.stat(FactorioServerManager_1.default.BackupFile);
             if (fileStats.size < this.MB_25)
-                this.AddFileToMessage(dataManager.BACKUP_FILE);
+                this.AddFileToMessage(FactorioServerManager_1.default.BackupFile);
             else
                 this.AddToMessage("Backup File is too large to send, please download it from the server");
         };

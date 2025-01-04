@@ -7,6 +7,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const Player_1 = __importDefault(require("./Player"));
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
+const FactorioServerManager_1 = __importDefault(require("./FactorioServerManager"));
 class PlayerDatabase {
     constructor(data) {
         this.Players = {};
@@ -39,9 +40,9 @@ class PlayerDatabase {
     }
     Update() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        if (!fs_1.default.existsSync(dataManager.SERVER_LOGS))
+        if (!fs_1.default.existsSync(FactorioServerManager_1.default.ServerLogs))
             return;
-        const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
+        const lines = fs_1.default.readFileSync(FactorioServerManager_1.default.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
         joins.forEach((join) => {

@@ -10,5 +10,6 @@ let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
 dataManager.CreateDirectories();
 dataManager.SERVER_MANAGER = new FactorioServerManager(dataManager.SERVER_MANAGER);
+FactorioServerManager.AutoBackup();
 
 console.log("Bot Started");

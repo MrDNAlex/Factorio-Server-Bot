@@ -15,13 +15,14 @@ class Start extends Command {
 
     public IsCommandBlocking: boolean = false;
 
-    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) =>
-    {
+    public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
         let serverManager = dataManager.SERVER_MANAGER;
 
-        if (!fs.existsSync(dataManager.WORLD_FILE))
+        dataManager.Update();
+
+        if (!fs.existsSync(FactorioServerManager.WorldFilePath))
             return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
 
         if (await serverManager.IsOnline())

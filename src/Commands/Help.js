@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 class Help extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -15,6 +16,7 @@ class Help extends dna_discord_framework_1.Command {
             let genMapCommand = "'/genworld'";
             let createServerCommand = "'/start'";
             let setupCommand = "`/setup`";
+            dataManager.Update();
             let message = `Hello! I am the Engineers Assistant! I am here to help you, the Engineer, set up a Factorio Server.`;
             this.AddToMessage(message);
             let createServer = `To create a server, you will need to do the following steps:
@@ -23,7 +25,7 @@ class Help extends dna_discord_framework_1.Command {
 3. Now Start the Server using the command ${createServerCommand}.
         `;
             this.AddToMessage(createServer);
-            this.AddFileToMessage(dataManager.MAP_GEN_TEMPLATE);
+            this.AddFileToMessage(FactorioServerManager_1.default.MapGenTemplate);
         };
         this.IsEphemeralResponse = true;
         this.IsCommandBlocking = false;

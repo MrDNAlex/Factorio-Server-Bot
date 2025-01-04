@@ -6,6 +6,7 @@ const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 const WorldGenManager_1 = __importDefault(require("../FactorioServer/WorldGenManager"));
 class GenWorld extends dna_discord_framework_1.Command {
     constructor() {
@@ -23,6 +24,7 @@ class GenWorld extends dna_discord_framework_1.Command {
             let previewImageSize = 1024;
             let seed = Math.floor(Math.random() * this.MaxSeed);
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            dataManager.Update();
             if (await dataManager.SERVER_MANAGER.IsOnline())
                 return this.AddToMessage("Server cannot be Running when Generating a World.");
             if (userSeed)
@@ -35,9 +37,10 @@ class GenWorld extends dna_discord_framework_1.Command {
             this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
             this.AddToMessage("Generating World Image...");
             let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
-            worldGenManager.ServerManager.SaveWorldInfo(false);
             if (!worldImageStatus || !(fs_1.default.existsSync(worldGenManager.ServerManager.WorldImage)))
                 return this.AddToMessage("Error Generatting World Image : Try Again");
+            if (worldImageStatus)
+                worldGenManager.ServerManager.SaveWorldInfo(false);
             if (!(fs_1.default.fstatSync(fs_1.default.openSync(worldGenManager.ServerManager.WorldImage, 'r')).size < this.MB_25))
                 this.AddToMessage("Map Image is too large to send, please download it from the server");
             else
@@ -110,12 +113,11 @@ class GenWorld extends dna_discord_framework_1.Command {
      * @param worldInfo
      */
     ReplaceWorldData(worldInfo) {
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-        this.DeleteFolder(dataManager.WORLD_FOLDER);
-        fs_1.default.cpSync(worldInfo.WorldImage, dataManager.WORLD_PREVIEW_IMAGE);
-        fs_1.default.cpSync(worldInfo.WorldFile, dataManager.WORLD_FILE);
-        fs_1.default.cpSync(worldInfo.WorldSettings, dataManager.WORLD_MAPGEN_SETTINGS);
-        fs_1.default.cpSync(worldInfo.WorldInfo, dataManager.WORLD_INFO);
+        this.DeleteFolder(FactorioServerManager_1.default.WorldDirectory);
+        fs_1.default.cpSync(worldInfo.WorldImage, FactorioServerManager_1.default.WorldImagePath);
+        fs_1.default.cpSync(worldInfo.WorldFile, FactorioServerManager_1.default.WorldFilePath);
+        fs_1.default.cpSync(worldInfo.WorldSettings, FactorioServerManager_1.default.WorldSettingsPath);
+        fs_1.default.cpSync(worldInfo.WorldInfo, FactorioServerManager_1.default.WorldInfoPath);
     }
 }
 module.exports = GenWorld;
