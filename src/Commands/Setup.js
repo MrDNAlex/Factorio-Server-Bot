@@ -39,7 +39,6 @@ class Start extends dna_discord_framework_1.Command {
                 this.AddToMessage(`World Channel: ${worldChannel}`);
             this.AddToMessage("\nOnce Server is Started you can Connect to the Server using the Following Connection Info:");
             this.AddToMessage(connectionMessage);
-            console.log("Setting up Bot...");
             dataManager.BOT_SETUP = true;
             dataManager.ServerOffline(client);
         };
