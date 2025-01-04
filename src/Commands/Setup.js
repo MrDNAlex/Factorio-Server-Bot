@@ -13,14 +13,11 @@ class Start extends dna_discord_framework_1.Command {
         this.IsEphemeralResponse = true;
         this.IsCommandBlocking = false;
         this.RunCommand = async (client, interaction, BotDataManager) => {
-            const name = interaction.options.getString("name");
             const port = interaction.options.getInteger("port");
             const hostname = interaction.options.getString("hostname");
             const worldChannel = interaction.options.getChannel("worldchannel");
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             dataManager.Update();
-            if (!name)
-                return this.AddToMessage("Server Name not specified, a Name must be specified for the Server.");
             if (!hostname)
                 return this.AddToMessage("Server Hostname not specified, a Hostname/IP Address must be specified for connection.");
             if (port)
@@ -31,12 +28,10 @@ class Start extends dna_discord_framework_1.Command {
                 dataManager.WORLD_CHANNEL_ID = worldChannel.id;
                 dataManager.WORLD_CHANNEL_SET = true;
             }
-            dataManager.SERVER_NAME = name;
             dataManager.SERVER_HOSTNAME = hostname;
             let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
             let connectionMessage = "```" + connectionInfo + "```";
             this.AddToMessage("Server has been Setup with the Following Connection Info:");
-            this.AddToMessage(`Name: ${dataManager.SERVER_NAME}`);
             this.AddToMessage(`Hostname: ${dataManager.SERVER_HOSTNAME}`);
             if (port)
                 this.AddToMessage(`Port: ${dataManager.SERVER_PORT}`);
@@ -44,15 +39,11 @@ class Start extends dna_discord_framework_1.Command {
                 this.AddToMessage(`World Channel: ${worldChannel}`);
             this.AddToMessage("\nOnce Server is Started you can Connect to the Server using the Following Connection Info:");
             this.AddToMessage(connectionMessage);
-            dataManager.SaveData();
+            console.log("Setting up Bot...");
+            dataManager.BOT_SETUP = true;
+            dataManager.ServerOffline(client);
         };
         this.Options = [
-            {
-                name: "name",
-                description: "Name of the Server being Hosted",
-                required: true,
-                type: dna_discord_framework_1.OptionTypesEnum.String,
-            },
             {
                 name: "hostname",
                 description: "The HostName or IP Address of the Server",

@@ -19,6 +19,7 @@ class Worlds extends dna_discord_framework_1.Command {
             let seed = interaction.options.getInteger("seed");
             let seeds = fs_1.default.readdirSync(FactorioServerManager_1.default.PreviewDirectory);
             dataManager.Update();
+            dataManager.ServerOnline(client);
             if (seed) {
                 let seedDirectory = `SEED_${seed}`;
                 let worldInfoPath = `${FactorioServerManager_1.default.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;

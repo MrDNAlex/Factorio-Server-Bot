@@ -26,8 +26,18 @@ class LoadWorld extends Command {
 
         const seed = interaction.options.getInteger("seed");
         const backup = interaction.options.getAttachment("backup");
+        const name = interaction.options.getString("name");
 
         dataManager.Update();
+
+        if (!seed && !backup && !name)
+        {
+            this.AddToMessage("There are Multiple Options to Load a World:");
+            this.AddToMessage("1. If you have previously generated Worlds and have not wiped the Data, you can Load a World using a Seed: '/loadworld Seed=12345', available Seeds can be seen using '/worlds'");
+            this.AddToMessage("2. If you have a Backup File created by the Bot, you can Load a World using the Backup File: '/loadworld Backup=Backup.tar.gz', drag and drop the File into the Backup Field");
+            this.AddToMessage("3. If you have a Solo save file and want to make it a Server you can Load a World using the Backup File: '/loadworld Backup=World.zip', drag and drop the File into the Backup Field");
+            return;
+        }
 
         if (await serverManager.IsOnline())
             return this.AddToMessage("Server cannot be Running when Loading a World.");
@@ -47,12 +57,15 @@ class LoadWorld extends Command {
                 fs.mkdirSync(loadDir, { recursive: true });
 
             if (backup.name.endsWith(".zip"))
-                await this.LoadZipBackup(loadDir, backup);
+                await this.LoadZipBackup(loadDir, backup, name);
             else
                 await this.LoadBackup(loadDir, backup);
 
             this.AddToMessage("World Loaded Successfully!");
         }
+
+        dataManager.WORLD_CHOSEN = true;
+        dataManager.ServerOffline(client);
     }
 
     /**
@@ -61,7 +74,6 @@ class LoadWorld extends Command {
      * @returns Error Messages when Applicable
      */
     public LoadSeed(seed: number) {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let seedDirectory = "SEED_" + seed;
         let worldInfoPath = `${FactorioServerManager.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
         let seeds = fs.readdirSync(FactorioServerManager.PreviewDirectory);
@@ -132,7 +144,7 @@ class LoadWorld extends Command {
      * @param backup The Uploaded World file to Load
      * @returns Error Messages when applicable
      */
-    public async LoadZipBackup(loadDir: string, backup: Attachment) {
+    public async LoadZipBackup(loadDir: string, backup: Attachment, name: string | null) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let runner = new BashScriptRunner();
         let worldGenManager = new WorldGenManager();
@@ -143,9 +155,15 @@ class LoadWorld extends Command {
         while (fs.existsSync(path.join(FactorioServerManager.PreviewDirectory, `SEED_${seed}`)))
             seed = Math.floor(Math.random() * this.MaxSeed);
 
-        worldGenManager.GenWorld(seed, backup);
+        this.AddToMessage(`Seed: ${seed}`);
 
-        this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
+        if (!name) {
+            name = `SEED_${seed}`;
+            this.AddToMessage(`Name not Specified. Using Seed Name: ${name}`);
+        } else
+            this.AddToMessage(`Assigning World Name : ${name}`);
+
+        worldGenManager.GenWorld(name, seed, backup);
 
         await this.DownloadFile(backup, path.join(loadDir, "Load.zip"));
 
@@ -284,6 +302,12 @@ class LoadWorld extends Command {
                 name: "backup",
                 description: "The Backup File to Load",
                 type: OptionTypesEnum.Attachment,
+                required: false
+            },
+            {
+                name: "name",
+                description: "Name of the unspecified ZIP World",
+                type: OptionTypesEnum.String,
                 required: false
             }
         ]

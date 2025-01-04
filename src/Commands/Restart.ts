@@ -27,6 +27,8 @@ class Restart extends Command {
 
         let shutdownStatus = await serverManager.Shutdown();
 
+        dataManager.ServerOffline(client);
+
         // Secretly Backup the Server
         await serverManager.Backup();
 
@@ -47,6 +49,8 @@ class Restart extends Command {
         this.AddToMessage("Server Started!");
         this.AddToMessage("Connect to the Server using the Following Connection Info:");
         this.AddToMessage("```" + connectionInfo + "```");
+        
+        dataManager.ServerOnline(client);
     }
 }
 

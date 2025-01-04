@@ -3,10 +3,19 @@ import fs from "fs";
 
 class BackupManager {
 
+    /**
+     * Directory to Store and Manage Extra Backups
+     */
     ExtraBackupsDir: string;
 
+    /**
+     * Directory to Store the Main Backup
+     */
     BackupDir: string;
 
+    /**
+     * Directory of the Content to Backup
+     */
     ContentDir: string;
 
     constructor(backupDir: string, extraBackupsDir: string, contentDir: string)

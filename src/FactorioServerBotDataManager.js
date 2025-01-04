@@ -6,34 +6,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dna_discord_framework_1 = require("dna-discord-framework");
 const fs_1 = __importDefault(require("fs"));
 const FactorioServerManager_1 = __importDefault(require("./FactorioServer/FactorioServerManager"));
+const discord_js_1 = require("discord.js");
 class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManager {
     constructor() {
         //Current World Files
         super(...arguments);
+        /**
+         * Factorio Server Manager
+         */
         this.SERVER_MANAGER = new FactorioServerManager_1.default();
-        //BACKUP_DIRECTORY: string = "/home/factorio/Backups";
-        //BACKUP_FILE: string = "/home/factorio/Backups/Backup.tar.gz";
-        //EXTRA_BACKUP_DIRECTORY: string = "/home/factorio/Backups/Extras";
-        //WORLD_FOLDER: string = "/home/factorio/World"
-        //WORLD_PREVIEW_IMAGE: string = "/home/factorio/World/Preview.png";
-        //WORLD_FILE: string = "/home/factorio/World/World.zip";
-        //WORLD_MAPGEN_SETTINGS: string = "/home/factorio/World/MapGenSettings.json";
-        //WORLD_INFO: string = "/home/factorio/World/WorldInfo.json";
+        /**
+         * Boolean Flag Indicating if a World has been Chosen
+         */
         this.WORLD_CHOSEN = false;
-        //SERVER_LOGS: string = "/home/factorio/World/WORLD_LOG.txt";
-        //MAP_GEN_TEMPLATE: string = "/FactorioBot/src/Files/MapGenTemplate.json";
-        //SERVER_EXECUTABLE_PATH: string = "/Factorio/factorio/bin/x64";
-        //PREVIEWS_PATH: string = "/home/factorio/Previews";
         // The Default Port to Expose
         this.SERVER_PORT = 8213;
         //Server Host name / IP Address
         this.SERVER_HOSTNAME = "";
-        this.SERVER_NAME = "Factorio Server";
-        //SERVER_IS_ALIVE: boolean = false;
-        this.SERVER_START_TIME = 0;
         this.WORLD_CHANNEL_SET = false;
         this.WORLD_CHANNEL_ID = "";
         this.LAST_BACKUP_DATE = 0;
+        this.BOT_SETUP = false;
     }
     CreateDirectories() {
         const world = "/home/factorio/World";
@@ -53,6 +46,34 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         this.SERVER_MANAGER.PlayerDB.Update();
         this.SERVER_MANAGER.SaveWorldInfo(true);
         this.SaveData();
+    }
+    async SetupActivity(client) {
+        if (!client.user)
+            return;
+        if (this.BOT_SETUP)
+            return this.ServerOffline(client);
+        client.user.setActivity("Waiting for Bot Setup, check /help", { type: discord_js_1.ActivityType.Custom });
+    }
+    async ServerOffline(client) {
+        if (!client.user)
+            return;
+        if (await this.SERVER_MANAGER.IsOnline()) {
+            this.ServerOnline(client);
+            return;
+        }
+        if (this.WORLD_CHOSEN)
+            client.user.setActivity("Waiting for Server to Start ", { type: discord_js_1.ActivityType.Custom });
+        else
+            client.user.setActivity("Waiting for World to be Chosen", { type: discord_js_1.ActivityType.Custom });
+    }
+    async ServerOnline(client) {
+        if (!client.user)
+            return;
+        if (!(await this.SERVER_MANAGER.IsOnline())) {
+            this.ServerOffline(client);
+            return;
+        }
+        client.user.setActivity("Factorio Server", { type: discord_js_1.ActivityType.Playing });
     }
 }
 exports.default = FactorioServerBotDataManager;

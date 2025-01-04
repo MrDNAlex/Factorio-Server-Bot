@@ -22,7 +22,7 @@ class Backup extends Command {
         let serverManager = dataManager.SERVER_MANAGER;
 
         dataManager.Update();
-       
+
         this.AddToMessage("Creating Backup of World...");
 
         let backupSuccess = await serverManager.Backup();

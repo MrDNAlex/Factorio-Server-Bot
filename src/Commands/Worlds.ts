@@ -23,6 +23,8 @@ class Worlds extends Command {
 
         dataManager.Update();
 
+        dataManager.ServerOnline(client);
+
         if (seed) {
             let seedDirectory = `SEED_${seed}`;
             let worldInfoPath = `${FactorioServerManager.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;

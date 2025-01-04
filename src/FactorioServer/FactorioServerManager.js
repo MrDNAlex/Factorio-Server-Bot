@@ -9,6 +9,7 @@ const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServe
 const fs_1 = __importDefault(require("fs"));
 const BackupManager_1 = __importDefault(require("../BackupManager"));
 const FactorioExecutableCommands_1 = __importDefault(require("../Enums/FactorioExecutableCommands"));
+1;
 class FactorioServerManager {
     constructor(data) {
         /**
@@ -45,9 +46,6 @@ class FactorioServerManager {
     AllFilesExist() {
         return fs_1.default.existsSync(this.WorldSettings) && fs_1.default.existsSync(this.WorldInfo) && fs_1.default.existsSync(this.WorldImage) && fs_1.default.existsSync(this.WorldFile);
     }
-    //public AllBackupFilesExist() {
-    //    return fs.existsSync(this.BackupWorldSettings) && fs.existsSync(this.BackupWorldInfo) && fs.existsSync(this.BackupWorldImage) && fs.existsSync(this.BackupWorldFile);
-    //}
     /**
      * Pings the Factorio Server to see if it is online
      * @returns Returns a Boolean Flag | True if the Server is Online, False if the Server is Offline
@@ -114,7 +112,6 @@ class FactorioServerManager {
      * Gets the List of Online Players in the Factorio Server
      */
     GetPlayers() {
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         const lines = fs_1.default.readFileSync(FactorioServerManager.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
@@ -145,6 +142,34 @@ class FactorioServerManager {
         backupManager.ManageBackupFiles(5);
         dataManager.LAST_BACKUP_DATE = new Date().getTime();
         return backupSuccess;
+    }
+    static async AutoBackup() {
+        let Mins10 = 1000 * 60 * 10;
+        let shouldContinue = true;
+        const handleExit = () => {
+            shouldContinue = false;
+            console.log("Shutting down...");
+        };
+        process.on('SIGINT', handleExit); // Handle Ctrl+C
+        process.on('SIGTERM', handleExit); // Handle Docker stop
+        while (shouldContinue) {
+            let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            let serverManager = dataManager.SERVER_MANAGER;
+            if (await serverManager.IsOnline() && !await serverManager.Backup())
+                console.log("Error creating backup");
+            await new Promise(resolve => {
+                const timeout = setTimeout(resolve, Mins10);
+                const checkExit = () => {
+                    if (!shouldContinue) {
+                        clearTimeout(timeout);
+                        resolve;
+                    }
+                    else
+                        setImmediate(checkExit);
+                };
+                checkExit();
+            });
+        }
     }
     SaveWorldInfo(isGlobal) {
         if (isGlobal)

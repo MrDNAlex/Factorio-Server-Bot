@@ -14,13 +14,13 @@ class WorldGenManager {
         this.ServerManager = new FactorioServerManager();
     }
 
-    public async GenWorld(seed: number, mapGenSettings: Attachment | null) {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager)
+    public async GenWorld(name: string, seed: number, mapGenSettings: Attachment | null) {
         let worldDir = `${FactorioServerManager.PreviewDirectory}/SEED_${seed}`;
 
         if (!fs.existsSync(worldDir))
             fs.mkdirSync(worldDir, { recursive: true });
 
+        this.ServerManager.Name = name;
         this.ServerManager.WorldSeed = seed;
 
         this.ServerManager.WorldDirectory = worldDir;

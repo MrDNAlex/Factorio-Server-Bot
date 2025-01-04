@@ -11,4 +11,6 @@ Bot.StartBot();
 let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
 dataManager.CreateDirectories();
 dataManager.SERVER_MANAGER = new FactorioServerManager_1.default(dataManager.SERVER_MANAGER);
+setTimeout(() => dataManager.SetupActivity(Bot.BotInstance), 3000);
 console.log("Bot Started");
+FactorioServerManager_1.default.AutoBackup();

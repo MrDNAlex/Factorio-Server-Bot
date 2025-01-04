@@ -22,7 +22,7 @@ class Players extends dna_discord_framework_1.Command {
             playerDB.Update();
             let onlinePlayers = playerDB.GetOnlinePlayers();
             let offlinePlayers = playerDB.GetOfflinePlayers();
-            this.AddToMessage(`${dataManager.SERVER_NAME} Players :`);
+            this.AddToMessage(`${serverManager.Name} Players :`);
             this.AddToMessage("Players Online: (Username - Playtime)");
             if (onlinePlayers.length == 0)
                 this.AddToMessage("No Players Online.");
@@ -44,6 +44,7 @@ class Players extends dna_discord_framework_1.Command {
                     let lastLoginString = ` - ${new Time_1.default(lastLogin).GetTimeAsString()}`;
                     this.AddToMessage(player + playtimeString + lastLoginString);
                 });
+            dataManager.ServerOnline(client);
         };
     }
 }

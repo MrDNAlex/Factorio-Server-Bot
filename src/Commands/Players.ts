@@ -28,7 +28,7 @@ class Players extends Command {
         let onlinePlayers = playerDB.GetOnlinePlayers();
         let offlinePlayers = playerDB.GetOfflinePlayers();
 
-        this.AddToMessage(`${dataManager.SERVER_NAME} Players :`);
+        this.AddToMessage(`${serverManager.Name} Players :`);
         this.AddToMessage("Players Online: (Username - Playtime)");
 
         if (onlinePlayers.length == 0)
@@ -56,6 +56,8 @@ class Players extends Command {
 
                 this.AddToMessage(player + playtimeString + lastLoginString);
             });
+
+        dataManager.ServerOnline(client);
     }
 }
 

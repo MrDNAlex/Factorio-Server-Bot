@@ -3,7 +3,6 @@ import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 import fs from "fs";
-import { server } from "typescript";
 
 class Start extends Command {
 
@@ -20,13 +19,13 @@ class Start extends Command {
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
         let serverManager = dataManager.SERVER_MANAGER;
 
-        dataManager.Update();
-
         if (!fs.existsSync(FactorioServerManager.WorldFilePath))
-            return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
+            return this.AddToMessage("No World File Found. You can Generate a World using `/genworld` or Load a Backup using `/loadbackup`.");
 
         if (await serverManager.IsOnline())
             return this.AddToMessage("Server is already Running.");
+
+        dataManager.Update();
 
         this.AddToMessage(`Starting Server...`);
 
@@ -40,6 +39,7 @@ class Start extends Command {
         this.AddToMessage("```" + connectionInfo + "```");
 
         dataManager.WORLD_CHOSEN = true;
+        dataManager.ServerOnline(client);
     }
 }
 

@@ -22,7 +22,15 @@ class LoadWorld extends dna_discord_framework_1.Command {
             let serverManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default).SERVER_MANAGER;
             const seed = interaction.options.getInteger("seed");
             const backup = interaction.options.getAttachment("backup");
+            const name = interaction.options.getString("name");
             dataManager.Update();
+            if (!seed && !backup && !name) {
+                this.AddToMessage("There are Multiple Options to Load a World:");
+                this.AddToMessage("1. If you have previously generated Worlds and have not wiped the Data, you can Load a World using a Seed: '/loadworld Seed=12345', available Seeds can be seen using '/worlds'");
+                this.AddToMessage("2. If you have a Backup File created by the Bot, you can Load a World using the Backup File: '/loadworld Backup=Backup.tar.gz', drag and drop the File into the Backup Field");
+                this.AddToMessage("3. If you have a Solo save file and want to make it a Server you can Load a World using the Backup File: '/loadworld Backup=World.zip', drag and drop the File into the Backup Field");
+                return;
+            }
             if (await serverManager.IsOnline())
                 return this.AddToMessage("Server cannot be Running when Loading a World.");
             if (seed && backup)
@@ -35,11 +43,13 @@ class LoadWorld extends dna_discord_framework_1.Command {
                 if (!fs_1.default.existsSync(loadDir))
                     fs_1.default.mkdirSync(loadDir, { recursive: true });
                 if (backup.name.endsWith(".zip"))
-                    await this.LoadZipBackup(loadDir, backup);
+                    await this.LoadZipBackup(loadDir, backup, name);
                 else
                     await this.LoadBackup(loadDir, backup);
                 this.AddToMessage("World Loaded Successfully!");
             }
+            dataManager.WORLD_CHOSEN = true;
+            dataManager.ServerOffline(client);
         };
         this.Options = [
             {
@@ -53,6 +63,12 @@ class LoadWorld extends dna_discord_framework_1.Command {
                 description: "The Backup File to Load",
                 type: dna_discord_framework_1.OptionTypesEnum.Attachment,
                 required: false
+            },
+            {
+                name: "name",
+                description: "Name of the unspecified ZIP World",
+                type: dna_discord_framework_1.OptionTypesEnum.String,
+                required: false
             }
         ];
     }
@@ -62,7 +78,6 @@ class LoadWorld extends dna_discord_framework_1.Command {
      * @returns Error Messages when Applicable
      */
     LoadSeed(seed) {
-        let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         let seedDirectory = "SEED_" + seed;
         let worldInfoPath = `${FactorioServerManager_1.default.PreviewDirectory}/${seedDirectory}/WorldInfo.json`;
         let seeds = fs_1.default.readdirSync(FactorioServerManager_1.default.PreviewDirectory);
@@ -117,7 +132,7 @@ class LoadWorld extends dna_discord_framework_1.Command {
      * @param backup The Uploaded World file to Load
      * @returns Error Messages when applicable
      */
-    async LoadZipBackup(loadDir, backup) {
+    async LoadZipBackup(loadDir, backup, name) {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
         let runner = new dna_discord_framework_1.BashScriptRunner();
         let worldGenManager = new WorldGenManager_1.default();
@@ -125,8 +140,14 @@ class LoadWorld extends dna_discord_framework_1.Command {
         this.AddToMessage("Assigning Seed to World...");
         while (fs_1.default.existsSync(path_1.default.join(FactorioServerManager_1.default.PreviewDirectory, `SEED_${seed}`)))
             seed = Math.floor(Math.random() * this.MaxSeed);
-        worldGenManager.GenWorld(seed, backup);
-        this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
+        this.AddToMessage(`Seed: ${seed}`);
+        if (!name) {
+            name = `SEED_${seed}`;
+            this.AddToMessage(`Name not Specified. Using Seed Name: ${name}`);
+        }
+        else
+            this.AddToMessage(`Assigning World Name : ${name}`);
+        worldGenManager.GenWorld(name, seed, backup);
         await this.DownloadFile(backup, path_1.default.join(loadDir, "Load.zip"));
         await runner.RunLocally(`unzip Load.zip`, true, loadDir).catch((error) => {
             console.error(`Error Loading Backup: ${error}`);

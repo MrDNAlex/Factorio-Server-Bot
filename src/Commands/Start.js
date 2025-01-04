@@ -17,11 +17,11 @@ class Start extends dna_discord_framework_1.Command {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
             let serverManager = dataManager.SERVER_MANAGER;
-            dataManager.Update();
             if (!fs_1.default.existsSync(FactorioServerManager_1.default.WorldFilePath))
-                return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
+                return this.AddToMessage("No World File Found. You can Generate a World using `/genworld` or Load a Backup using `/loadbackup`.");
             if (await serverManager.IsOnline())
                 return this.AddToMessage("Server is already Running.");
+            dataManager.Update();
             this.AddToMessage(`Starting Server...`);
             let startStatus = await serverManager.Start();
             if (!startStatus || !(await serverManager.IsOnline()))
@@ -30,6 +30,7 @@ class Start extends dna_discord_framework_1.Command {
             this.AddToMessage("Connect to the Server using the Following Connection Info:");
             this.AddToMessage("```" + connectionInfo + "```");
             dataManager.WORLD_CHOSEN = true;
+            dataManager.ServerOnline(client);
         };
     }
 }

@@ -3,8 +3,7 @@ import PlayerDatabase from "./PlayerDatabase";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import BackupManager from "../BackupManager";
-import FactorioExecutableCommands from "../Enums/FactorioExecutableCommands";
-import { server } from "typescript";
+import FactorioExecutableCommands from "../Enums/FactorioExecutableCommands";1
 
 class FactorioServerManager {
 
@@ -109,10 +108,6 @@ class FactorioServerManager {
         return fs.existsSync(this.WorldSettings) && fs.existsSync(this.WorldInfo) && fs.existsSync(this.WorldImage) && fs.existsSync(this.WorldFile);
     }
 
-    //public AllBackupFilesExist() {
-    //    return fs.existsSync(this.BackupWorldSettings) && fs.existsSync(this.BackupWorldInfo) && fs.existsSync(this.BackupWorldImage) && fs.existsSync(this.BackupWorldFile);
-    //}
-
     /**
      * Pings the Factorio Server to see if it is online
      * @returns Returns a Boolean Flag | True if the Server is Online, False if the Server is Offline
@@ -195,7 +190,6 @@ class FactorioServerManager {
      * Gets the List of Online Players in the Factorio Server
      */
     public GetPlayers() {
-        let dataManager = BotData.Instance(FactorioServerBotDataManager);
         const lines = fs.readFileSync(FactorioServerManager.ServerLogs, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
@@ -240,16 +234,34 @@ class FactorioServerManager {
 
     public static async AutoBackup() {
         let Mins10 = 1000 * 60 * 10;
-        while (true) {
+        let shouldContinue = true;
+
+        const handleExit = () => {
+            shouldContinue = false;
+            console.log("Shutting down...");
+        };
+
+        process.on('SIGINT', handleExit); // Handle Ctrl+C
+        process.on('SIGTERM', handleExit); // Handle Docker stop
+
+        while (shouldContinue) {
             let dataManager = BotData.Instance(FactorioServerBotDataManager);
             let serverManager = dataManager.SERVER_MANAGER;
 
             if (await serverManager.IsOnline() && !await serverManager.Backup())
                 console.log("Error creating backup");
-            else
-                console.log("Backup Created Successfully! or not online!");
 
-            await new Promise(resolve => setTimeout(resolve, Mins10));
+            await new Promise(resolve => {
+                const timeout = setTimeout(resolve, Mins10);
+                const checkExit = () => {
+                    if (!shouldContinue) {
+                        clearTimeout(timeout);
+                        resolve;
+                    } else
+                        setImmediate(checkExit);
+                };
+                checkExit();
+            });
         }
     }
 

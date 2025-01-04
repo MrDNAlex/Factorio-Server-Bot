@@ -21,11 +21,11 @@ class Shutdown extends dna_discord_framework_1.Command {
             // Secretly Backup the Server
             await serverManager.Backup();
             await serverManager.Shutdown();
+            dataManager.ServerOffline(client);
             if (!(await serverManager.IsOnline()))
                 return this.AddToMessage("Server is Offline.");
             this.AddToMessage("Error Shutting Down Server.");
             this.AddToMessage("Server is still Online.");
-            dataManager.Update();
         };
     }
 }

@@ -24,6 +24,7 @@ class GenWorld extends Command {
         const previewSize = interaction.options.getInteger("previewsize");
         const mapGenSettings = interaction.options.getAttachment("mapgensettings");
         const userSeed = interaction.options.getInteger("seed");
+        const name = interaction.options.getString("name");
 
         let previewImageSize = 1024;
         let seed = Math.floor(Math.random() * this.MaxSeed);
@@ -34,6 +35,9 @@ class GenWorld extends Command {
         if (await dataManager.SERVER_MANAGER.IsOnline())
             return this.AddToMessage("Server cannot be Running when Generating a World.");
 
+        if (!name)
+            return this.AddToMessage("Name is Required for the World!");
+
         if (userSeed)
             seed = userSeed;
 
@@ -42,10 +46,11 @@ class GenWorld extends Command {
 
         let worldGenManager = new WorldGenManager();
 
-        await worldGenManager.GenWorld(seed, mapGenSettings);
+        await worldGenManager.GenWorld(name, seed, mapGenSettings);
 
         this.AddToMessage("Generating Map...");
         this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
+        this.AddToMessage(`Name: ${worldGenManager.ServerManager.Name}`);
         this.AddToMessage("Generating World Image...");
 
         let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
@@ -72,6 +77,8 @@ class GenWorld extends Command {
 
         if (dataManager.WORLD_CHANNEL_SET)
             this.UploadWorldInfo(client, worldGenManager.ServerManager);
+
+        dataManager.ServerOffline(client);
 
         if (dataManager.WORLD_CHOSEN)
             return this.AddToMessage("A World has already been Loaded. You can replace the world with what was generated using '/loadworld'")
@@ -133,6 +140,12 @@ class GenWorld extends Command {
     }
 
     Options: ICommandOption[] = [
+        {
+            name: "name",
+            description: "Name of the World",
+            required: true,
+            type: OptionTypesEnum.String,
+        },
         {
             name: "previewsize",
             description: "Size of the map preview PNG in pixels (Default is 1024)",

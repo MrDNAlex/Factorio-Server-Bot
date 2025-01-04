@@ -11,6 +11,12 @@ class BackupManager {
         this.ExtraBackupsDir = extraBackupsDir;
         this.ContentDir = contentDir;
     }
+    /**
+     * Creates a New Tar.gz Backup of the Server
+     * @param dataManager Data Manager to Log Errors
+     * @param backupName Name of the Backup File (Default: Backup)
+     * @returns Success Status of Backup Creation
+     */
     async CreateBackup(dataManager, backupName = "Backup") {
         let runner = new dna_discord_framework_1.BashScriptRunner();
         let success = true;
@@ -34,6 +40,10 @@ class BackupManager {
         });
         return success;
     }
+    /**
+     * Gets all the Backup Files in the Extra Backup Directory Sorted from Oldest to Newest
+     * @returns List of Backup Files Sorted from Oldest to Newest
+     */
     GetOldestBackupFile() {
         let files = fs_1.default.readdirSync(this.ExtraBackupsDir);
         if (files.length == 0)
@@ -48,6 +58,10 @@ class BackupManager {
             .map(file => file.name);
         return files[0];
     }
+    /**
+     * Manages Backups Files by deleting oldest files until the maxBackups is reached
+     * @param maxBackups The max number of extra backups to keep
+     */
     ManageBackupFiles(maxBackups) {
         let maxLoop = 0;
         while (fs_1.default.readdirSync(this.ExtraBackupsDir).length > maxBackups && maxLoop < 50) {

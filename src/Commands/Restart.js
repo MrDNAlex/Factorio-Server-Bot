@@ -20,6 +20,9 @@ class Restart extends dna_discord_framework_1.Command {
                 return this.AddToMessage("Server is not Running, cannot Restart.");
             this.AddToMessage("Shutting Down Server...");
             let shutdownStatus = await serverManager.Shutdown();
+            dataManager.ServerOffline(client);
+            // Secretly Backup the Server
+            await serverManager.Backup();
             if (!shutdownStatus || await serverManager.IsOnline())
                 return this.AddToMessage("Error Shutting Down Server. Please Check the Logs for more Information.");
             this.AddToMessage("Server Shutdown! Waiting a Few Seconds to Restart...");
@@ -31,6 +34,7 @@ class Restart extends dna_discord_framework_1.Command {
             this.AddToMessage("Server Started!");
             this.AddToMessage("Connect to the Server using the Following Connection Info:");
             this.AddToMessage("```" + connectionInfo + "```");
+            dataManager.ServerOnline(client);
         };
     }
 }
