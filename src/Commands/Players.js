@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
-const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 const Time_1 = __importDefault(require("../Objects/Time"));
 class Players extends dna_discord_framework_1.Command {
     constructor() {
@@ -15,10 +14,9 @@ class Players extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = false;
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            let pingStatus = await FactorioServerCommands_1.default.IsOnline();
             let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
-            dataManager.SERVER_IS_ALIVE = pingStatus;
-            if (!pingStatus)
+            let serverManager = dataManager.SERVER_MANAGER;
+            if (!await serverManager.IsOnline())
                 return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
             playerDB.Update();
             let onlinePlayers = playerDB.GetOnlinePlayers();

@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
-const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 const Time_1 = __importDefault(require("../Objects/Time"));
 class Status extends dna_discord_framework_1.Command {
     constructor() {
@@ -15,8 +14,9 @@ class Status extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = false;
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            let pingStatus = await FactorioServerCommands_1.default.IsOnline();
-            let uptime = new Date().getTime() - dataManager.SERVER_START_TIME;
+            let serverManager = dataManager.SERVER_MANAGER;
+            let pingStatus = await serverManager.IsOnline();
+            let uptime = new Date().getTime() - serverManager.StartTime;
             let uptimeString = new Time_1.default(uptime).GetTimeAsString();
             let backupTime = new Date().getTime() - dataManager.LAST_BACKUP_DATE;
             let backupTimeString = new Time_1.default(backupTime).GetTimeAsString();

@@ -1,8 +1,9 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../FactorioServerCommands";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 import Time from "../Objects/Time";
+import { server } from "typescript";
 
 class Status extends Command {
 
@@ -16,8 +17,9 @@ class Status extends Command {
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let pingStatus = await FactorioServerCommands.IsOnline();
-        let uptime = new Date().getTime() - dataManager.SERVER_START_TIME;
+        let serverManager = dataManager.SERVER_MANAGER;
+        let pingStatus = await serverManager.IsOnline();
+        let uptime = new Date().getTime() - serverManager.StartTime;
         let uptimeString = new Time(uptime).GetTimeAsString();
         let backupTime = new Date().getTime() - dataManager.LAST_BACKUP_DATE;
         let backupTimeString = new Time(backupTime).GetTimeAsString();

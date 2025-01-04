@@ -1,10 +1,10 @@
-import { Client, ChatInputCommandInteraction, CacheType, TextChannel} from "discord.js";
-import { BashScriptRunner, BotData, BotDataManager, BotMessage, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
+import { Client, ChatInputCommandInteraction, CacheType, TextChannel } from "discord.js";
+import { BotData, BotDataManager, BotMessage, Command, ICommandOption, OptionTypesEnum } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import path from "path";
-import WorldInfo from "../WorldInfo";
-import FactorioServerCommands from "../FactorioServerCommands";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
+import WorldGenManager from "../FactorioServer/WorldGenManager";
 
 class GenWorld extends Command {
 
@@ -29,7 +29,7 @@ class GenWorld extends Command {
         let seed = Math.floor(Math.random() * this.MaxSeed);
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
-        if (await FactorioServerCommands.IsOnline())
+        if (await dataManager.SERVER_MANAGER.IsOnline())
             return this.AddToMessage("Server cannot be Running when Generating a World.");
 
         if (userSeed)
@@ -38,42 +38,42 @@ class GenWorld extends Command {
         if (previewSize)
             previewImageSize = previewSize;
 
-        let worldInfo = new WorldInfo(seed);
+        let worldGenManager = new WorldGenManager();
 
-        worldInfo.CreateFolder();
-        await worldInfo.DownloadMapSettings(mapGenSettings);
-        worldInfo.SaveWorldInfo();
+        await worldGenManager.GenWorld(seed, mapGenSettings);
 
         this.AddToMessage("Generating Map...");
-        this.AddToMessage(`Seed: ${worldInfo.WorldSeed}`);
+        this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
         this.AddToMessage("Generating World Image...");
 
-        let worldImageStatus =  await this.GenerateWorldPreview(worldInfo, previewImageSize);
+        let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
 
-        if (!worldImageStatus || !(fs.existsSync(worldInfo.WorldImage)))
+        if (!worldImageStatus || !(fs.existsSync(worldGenManager.ServerManager.WorldImage)))
             return this.AddToMessage("Error Generatting World Image : Try Again");
 
-        if (!(fs.fstatSync(fs.openSync(worldInfo.WorldImage, 'r')).size < this.MB_25))
+        if (!(fs.fstatSync(fs.openSync(worldGenManager.ServerManager.WorldImage, 'r')).size < this.MB_25))
             this.AddToMessage("Map Image is too large to send, please download it from the server");
         else
-            this.AddFileToMessage(worldInfo.WorldImage);
+            this.AddFileToMessage(worldGenManager.ServerManager.WorldImage);
 
         this.AddToMessage("Generating World File...");
 
-        let worldFileStatus = await this.GenerateWorldFile(worldInfo);
+        let worldFileStatus = await worldGenManager.GenerateWorldFile();
 
-        if (!worldFileStatus || !(fs.existsSync(worldInfo.WorldFile)))
+        if (!worldFileStatus || !(fs.existsSync(worldGenManager.ServerManager.WorldFile)))
             return this.AddToMessage("Error Generatting World File : Try Again");
 
         this.AddToMessage("World Generation Complete!");
 
         if (dataManager.WORLD_CHANNEL_SET)
-            this.UploadWorldInfo(client, worldInfo);
+            this.UploadWorldInfo(client, worldGenManager.ServerManager);
 
         if (dataManager.WORLD_CHOSEN)
             return this.AddToMessage("A World has already been Loaded. You can replace the world with what was generated using '/loadworld'")
 
-        this.ReplaceWorldData(worldInfo);       
+        this.ReplaceWorldData(worldGenManager.ServerManager);
+        dataManager.SERVER_MANAGER = worldGenManager.ServerManager;
+        dataManager.SERVER_MANAGER.SaveWorldInfo(true);
     }
 
     /**
@@ -87,14 +87,13 @@ class GenWorld extends Command {
             const stat = fs.statSync(fullPath);
 
             if (stat.isDirectory())
-                fs.rmSync(fullPath, { recursive: true, force: true }); 
+                fs.rmSync(fullPath, { recursive: true, force: true });
             else
                 fs.unlinkSync(fullPath);
         }
     }
 
-    public async UploadWorldInfo (client: Client, worldInfo: WorldInfo)
-    {
+    public async UploadWorldInfo(client: Client, worldInfo: FactorioServerManager) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let worldChannel = await client.channels.fetch(dataManager.WORLD_CHANNEL_ID) as TextChannel;
         let worldUploadMessage = new BotMessage(worldChannel);
@@ -119,8 +118,7 @@ class GenWorld extends Command {
      * Replaces the World Data that is loaded with the 
      * @param worldInfo 
      */
-    public ReplaceWorldData (worldInfo: WorldInfo)
-    {
+    public ReplaceWorldData(worldInfo: FactorioServerManager) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
 
         this.DeleteFolder(dataManager.WORLD_FOLDER);
@@ -129,46 +127,6 @@ class GenWorld extends Command {
         fs.cpSync(worldInfo.WorldFile, dataManager.WORLD_FILE);
         fs.cpSync(worldInfo.WorldSettings, dataManager.WORLD_MAPGEN_SETTINGS);
         fs.cpSync(worldInfo.WorldInfo, dataManager.WORLD_INFO);
-    }
-
-    /**
-     * Generates a an Image of the World with the given Preview Size
-     * @param worldInfo The World Info that needs to be generated
-     * @param previewImageSize The Size of the World Image in Pixels (Width and Height)
-     * @returns A Boolean Flag to indicate a successful generation of the World Image
-     */
-    public async GenerateWorldPreview (worldInfo: WorldInfo, previewImageSize: number)
-    {
-        let worldImageRunner = new BashScriptRunner();
-        let success = true;
-
-        await worldImageRunner.RunLocally(worldInfo.GenImageCommand(previewImageSize), true).catch((err) => {
-            console.log("Error Generating World Image");
-            console.log(err);
-            success = false;
-        });
-
-        return success;
-    }
-
-    /**
-     * Generates the World File for the Factorio Server (ZIP File)
-     * @param worldInfo The World Info that needs to be generated
-     * @returns A Boolean Flag to indicate a successful generation of the World Image
-     */
-    public async GenerateWorldFile (worldInfo: WorldInfo)
-    {
-        let worldFileRunner = new BashScriptRunner();
-        let success = true;
-
-        await worldFileRunner.RunLocally(worldInfo.GenWorldCommand(), true).catch((err) => {
-            console.log("Error Generating World File");
-            console.log(err);
-            success = false;
-            return;
-        });
-
-        return success;
     }
 
     Options: ICommandOption[] = [

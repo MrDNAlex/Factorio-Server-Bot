@@ -29,7 +29,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         //Server Host name / IP Address
         this.SERVER_HOSTNAME = "";
         this.SERVER_NAME = "Factorio Server";
-        this.SERVER_IS_ALIVE = false;
+        //SERVER_IS_ALIVE: boolean = false;
         this.SERVER_START_TIME = 0;
         this.WORLD_CHANNEL_SET = false;
         this.WORLD_CHANNEL_ID = "";
@@ -51,6 +51,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
     }
     Update() {
         this.SERVER_MANAGER.PlayerDB.Update();
+        this.SERVER_MANAGER.SaveWorldInfo(true);
     }
 }
 exports.default = FactorioServerBotDataManager;

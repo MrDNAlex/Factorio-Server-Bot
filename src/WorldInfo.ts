@@ -4,6 +4,7 @@ import axios from "axios";
 import FactorioExecutableCommands from "./Enums/FactorioExecutableCommands";
 import FactorioServerBotDataManager from "./FactorioServerBotDataManager";
 import fs from "fs";
+import PlayerDatabase from "./FactorioServer/PlayerDatabase";
 
 class WorldInfo
 {
@@ -21,12 +22,13 @@ class WorldInfo
 
     public WorldInfo: string;
 
+
     constructor (seed: number)
     {
         let dataManager = BotData.Instance(FactorioServerBotDataManager)
 
         this.WorldImageSize = 1024;
-        this.WorldSeed = seed
+        this.WorldSeed = seed;
 
         this.WorldDirectory = `${dataManager.PREVIEWS_PATH}/SEED_${seed}`;
         this.WorldSettings = `${this.WorldDirectory}/MapGenSettings.json`;
@@ -48,7 +50,7 @@ class WorldInfo
         if (mapGenSettings) 
             await this.DownloadFile(mapGenSettings, this.WorldSettings);
         else
-            fs.cpSync(dataManager.MAP_GEN_TEMPLATE, this.WorldSettings)
+            fs.cpSync(dataManager.MAP_GEN_TEMPLATE, this.WorldSettings);
     }
 
     public SaveWorldInfo ()

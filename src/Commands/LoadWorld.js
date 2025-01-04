@@ -8,7 +8,6 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const WorldInfo_1 = __importDefault(require("../WorldInfo"));
 const axios_1 = __importDefault(require("axios"));
-const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 class LoadWorld extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -18,9 +17,10 @@ class LoadWorld extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = false;
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+            let serverManager = dataManager.SERVER_MANAGER;
             const seed = interaction.options.getInteger("seed");
             const backup = interaction.options.getAttachment("backup");
-            if (await FactorioServerCommands_1.default.IsOnline())
+            if (await serverManager.IsOnline())
                 return this.AddToMessage("Server cannot be Running when Loading a World.");
             if (seed && backup)
                 return this.AddToMessage("Cannot Load both a Seed and a Backup File.");

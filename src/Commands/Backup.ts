@@ -1,7 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../FactorioServerCommands";
 import fs from "fs";
 import fsp from "fs/promises";
 
@@ -19,10 +18,11 @@ class Backup extends Command {
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let serverManager = dataManager.SERVER_MANAGER;
        
         this.AddToMessage("Creating Backup of World...");
 
-        let backupSuccess = await FactorioServerCommands.Backup();
+        let backupSuccess = await serverManager.Backup();
 
         if (!backupSuccess)
             return this.AddToMessage("Error creating backup");

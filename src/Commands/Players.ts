@@ -1,7 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommands from "../FactorioServerCommands";
 import Time from "../Objects/Time";
 
 class Players extends Command {
@@ -16,12 +15,10 @@ class Players extends Command {
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
-        let pingStatus = await FactorioServerCommands.IsOnline();
         let playerDB = dataManager.SERVER_MANAGER.PlayerDB;
+        let serverManager = dataManager.SERVER_MANAGER;
 
-        dataManager.SERVER_IS_ALIVE = pingStatus;
-
-        if (!pingStatus)
+        if (!await serverManager.IsOnline())
             return this.AddToMessage("Server is Offline, Players cannot be retrieved.");
 
         playerDB.Update();

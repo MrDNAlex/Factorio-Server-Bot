@@ -9,7 +9,6 @@ const FactorioServerManager_1 = __importDefault(require("./src/FactorioServer/Fa
 const Bot = new dna_discord_framework_1.DiscordBot(FactorioServerBotDataManager_1.default);
 Bot.StartBot();
 let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-dataManager.SERVER_IS_ALIVE = false;
 dataManager.CreateDirectories();
 dataManager.SERVER_MANAGER = new FactorioServerManager_1.default(dataManager.SERVER_MANAGER);
 console.log("Bot Started");

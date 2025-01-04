@@ -1,8 +1,9 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 import fs from "fs";
-import FactorioServerCommands from "../FactorioServerCommands";
+import { server } from "typescript";
 
 class Start extends Command {
 
@@ -18,18 +19,19 @@ class Start extends Command {
     {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
+        let serverManager = dataManager.SERVER_MANAGER;
 
         if (!fs.existsSync(dataManager.WORLD_FILE))
             return this.AddToMessage("No World File Found. You can Generate a World using '/genworld' or Load a Backup using '/loadbackup'.");
 
-        if (dataManager.SERVER_IS_ALIVE || await FactorioServerCommands.IsOnline())
+        if (await serverManager.IsOnline())
             return this.AddToMessage("Server is already Running.");
 
         this.AddToMessage(`Starting Server...`);
 
-        let startStatus = await FactorioServerCommands.Start();
+        let startStatus = await serverManager.Start();
 
-        if (!startStatus || !(await FactorioServerCommands.IsOnline()))
+        if (!startStatus || !(await serverManager.IsOnline()))
             return this.AddToMessage("Error Starting Server. Please Check the Logs for more Information.");
 
         this.AddToMessage("Server Started!");

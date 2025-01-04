@@ -1,18 +1,16 @@
-import { BotData } from "dna-discord-framework";
+import { BashScriptRunner, BotData } from "dna-discord-framework";
 import PlayerDatabase from "./PlayerDatabase";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
+import BackupManager from "../BackupManager";
+import FactorioExecutableCommands from "../Enums/FactorioExecutableCommands";
 
 class FactorioServerManager {
+
     /**
      * Name of the Server
      */
     Name: string;
-
-    /**
-     * Online Status of the Server
-     */
-    Online: boolean;
 
     /**
      * Flag to check if a World has been Chosen or World Generation to set it is still needed
@@ -25,9 +23,31 @@ class FactorioServerManager {
     PlayerDB: PlayerDatabase;
 
     /**
-     * List of Online Players in the Server
+     * Time to Wait for the Server to Shutdown
      */
-    OnlinePlayers: string[];
+    ActionWaitTime = 3000;
+
+    /**
+     * Time the Server was Started
+     */
+    StartTime: number;
+
+    /**
+     * World Generation Seed
+     */
+    WorldSeed: number;
+
+    public WorldDirectory: string;
+
+    public WorldSettings: string;
+
+    public WorldImage: string;
+
+    public WorldFile: string;
+
+    public WorldImageSize: number;
+
+    public WorldInfo: string;
 
     // Files
 
@@ -41,24 +61,119 @@ class FactorioServerManager {
 
     public static WorldInfoPath = "/home/factorio/World/WorldInfo.json";
 
-
     constructor(data?: any) {
 
         if (data) {
             this.Name = data.Name;
-            this.Online = data.Online;
-            this.OnlinePlayers = data.OnlinePlayers;
             this.WorldChosen = data.WorldChosen;
             this.PlayerDB = new PlayerDatabase(data.PlayerDB);
+            this.StartTime = data.StartTime;
+            this.WorldSeed = data.WorldSeed;
+
+            this.WorldDirectory = data.WorldDirectory;
+            this.WorldSettings = data.WorldSettings;
+            this.WorldImage = data.WorldImage;
+            this.WorldFile = data.WorldFile;
+            this.WorldImageSize = data.WorldImageSize;
+            this.WorldInfo = data.WorldInfo;
+
         } else {
             this.Name = "Factorio Server";
-            this.Online = false;
-            this.OnlinePlayers = [];
+            this.StartTime = 0;
             this.WorldChosen = false;
             this.PlayerDB = new PlayerDatabase();
+            this.WorldSeed = 0;
+
+            this.WorldDirectory = "";
+            this.WorldSettings = "";
+            this.WorldImage = "";
+            this.WorldFile = "";
+            this.WorldInfo = "";
+            this.WorldImageSize = 0;
         }
     }
 
+    /**
+     * Pings the Factorio Server to see if it is online
+     * @returns Returns a Boolean Flag | True if the Server is Online, False if the Server is Offline
+     */
+    public async IsOnline(): Promise<boolean> {
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let serverStatus = new BashScriptRunner();
+        let ranIntoError = false;
+        let isServerRunningCommand = `pgrep -f "factorio ${FactorioExecutableCommands.StartServer} ${FactorioServerManager.WorldFilePath}"`;
+
+        await serverStatus.RunLocally(isServerRunningCommand, true).catch((err) => {
+            ranIntoError = true;
+            dataManager.AddErrorLog(err);
+            console.log(`Error Checking Server Status : ${err}`);
+        });
+
+        let IDs = serverStatus.StandardOutputLogs.split("\n");
+
+        IDs.forEach((id) => {
+            id = id.trim();
+        });
+
+        IDs = IDs.filter((id) => id != " " && id != "");
+
+        if (ranIntoError || IDs.length <= 1)
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Starts the Factorio Server
+     * @returns Returns a Boolean Flag | True if the Server was Started, False if the Server was not Started
+     */
+    public async Start(): Promise<boolean> {
+        let start = new BashScriptRunner();
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let startCommand = `factorio ${FactorioExecutableCommands.StartServer} ${FactorioServerManager.WorldFilePath} --port ${dataManager.SERVER_PORT} > ${dataManager.SERVER_LOGS} 2>&1 &`;
+        let success = true;
+
+        start.RunLocally(startCommand, true).catch((err) => {
+            if (err.code === undefined)
+                return;
+
+            success = false;
+            console.log("Error starting server");
+            console.log(err);
+        });
+
+        return new Promise(resolve => setTimeout(() => {
+            if (success)
+                this.StartTime = new Date().getTime();
+
+            resolve(success);
+        }, this.ActionWaitTime));
+    }
+
+    /**
+     * Tries to Shutdown the Factorio Server
+     * @returns Returns a Boolean Flag | True if the Server was Shutdown, False if the Server was not Shutdown
+     */
+    public async Shutdown(): Promise<boolean> {
+        let shutdown = new BashScriptRunner();
+        let shutdownCommand = `pkill -f "factorio --start-server" || true`;
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let success = true;
+
+        await shutdown.RunLocally(shutdownCommand, true).catch((err) => {
+            if (err.code === undefined)
+                return;
+
+            success = false;
+            dataManager.AddErrorLog(err);
+        });
+
+        return new Promise(resolve => setTimeout(() => resolve(success), this.ActionWaitTime));
+    }
+
+    /**
+     * Gets the List of Online Players in the Factorio Server
+     */
     public GetPlayers() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
@@ -84,81 +199,31 @@ class FactorioServerManager {
 
         this.PlayerDB.Update();
 
-
-
-
-        //const joinedUsernames = this.GetJoinedUsernames(joins);
-        //const leftUsernames = this.GetLeftUsernames(leaves);
-        //const allPlayers = Object.keys(joinedUsernames).concat(Object.keys(leftUsernames));
-//
-        //// Add all Players to the Database in case there are new Ones
-        //allPlayers.forEach((player) => this.PlayerDB.AddNewPlayer(player));
-//
-        //let usernames = Object.keys(joinedUsernames);
-        //let onlineUsernames: string[] = [];
-//
-        //usernames.forEach((username) => {
-//
-        //    if (!(username in leftUsernames))
-        //        onlineUsernames.push(username);
-        //    else {
-        //        const joinTimeStamp = joinedUsernames[username];
-        //        const leaveTimeStamp = leftUsernames[username];
-//
-        //        if (joinTimeStamp > leaveTimeStamp)
-        //            onlineUsernames.push(username);
-        //    }
-        //});
-
         return this.PlayerDB.GetOnlinePlayers();
     }
 
-    private GetJoinedUsernames(joins: string[]): Record<string, number> {
-        let usernames: Record<string, number> = {};
+    /**
+     * Copies the World Files to the Backup Directory
+     * @returns Returns a Boolean Flag | True if the Backup was Successful, False if the Backup was Unsuccessful
+     */
+    public async Backup(): Promise<boolean> {
+        let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let backupManager = new BackupManager(dataManager.BACKUP_DIRECTORY, dataManager.EXTRA_BACKUP_DIRECTORY, dataManager.WORLD_FOLDER);
+        let backupSuccess = await backupManager.CreateBackup(dataManager, "Backup");
 
-        joins.forEach((join) => {
-            const joinLine = join.split("[JOIN]");
-            const timeStamp = joinLine[0].replace("[JOIN]", "").trim();
-            const username = joinLine[1].replace(" joined the game", "").trim();
+        backupManager.ManageBackupFiles(5);
 
-            if (username in usernames) {
-                const oldTimeStamp = new Date(usernames[username]).getTime();
-                const newTimeStamp = new Date(timeStamp).getTime();
+        dataManager.LAST_BACKUP_DATE = new Date().getTime();
 
-                if (newTimeStamp > oldTimeStamp)
-                    usernames[username] = newTimeStamp;
-            } else
-                usernames[username] = new Date(timeStamp).getTime();
-
-        });
-
-        return usernames;
+        return backupSuccess;
     }
 
-    private GetLeftUsernames(leaves: string[]): Record<string, number> {
-        let usernames: Record<string, number> = {};
-
-        leaves.forEach((leave) => {
-            const leaveLine = leave.split("[LEAVE]");
-            const timeStamp = leaveLine[0].replace("[LEAVE]", "").trim();
-            const username = leaveLine[1].replace(" left the game", "").trim();
-
-            if (username in usernames) {
-                const oldTimeStamp = new Date(usernames[username]).getTime();
-                const newTimeStamp = new Date(timeStamp).getTime();
-
-                if (newTimeStamp > oldTimeStamp)
-                    usernames[username] = newTimeStamp;
-            } else
-                usernames[username] = new Date(timeStamp).getTime();
-        });
-
-        return usernames;
+    public SaveWorldInfo(isGlobal: boolean) {
+        if (isGlobal)
+            fs.writeFileSync(FactorioServerManager.WorldInfoPath, JSON.stringify(this, null, 4));
+        else
+            fs.writeFileSync(this.WorldInfo, JSON.stringify(this, null, 4));
     }
-
-
-
-
 }
 
 export default FactorioServerManager;

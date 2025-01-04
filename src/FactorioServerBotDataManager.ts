@@ -41,7 +41,7 @@ class FactorioServerBotDataManager extends BotDataManager {
 
     SERVER_NAME: string = "Factorio Server"
 
-    SERVER_IS_ALIVE: boolean = false;
+    //SERVER_IS_ALIVE: boolean = false;
 
     SERVER_START_TIME: number = 0;
 
@@ -73,6 +73,7 @@ class FactorioServerBotDataManager extends BotDataManager {
     public Update()
     {
         this.SERVER_MANAGER.PlayerDB.Update();
+        this.SERVER_MANAGER.SaveWorldInfo(true);
     }
 
 }

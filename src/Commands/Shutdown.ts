@@ -1,7 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import FactorioServerCommand from "../FactorioServerCommands";
 
 class Shutdown extends Command {
 
@@ -15,24 +14,20 @@ class Shutdown extends Command {
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let serverManager = dataManager.SERVER_MANAGER;
 
-        if (!dataManager.SERVER_IS_ALIVE || !(await FactorioServerCommand.IsOnline())) {
-            dataManager.SERVER_IS_ALIVE = false;
+        if (!(await serverManager.IsOnline())) 
             return this.AddToMessage("Server is not Running, Nothing to Shutdown");
-        }
 
         this.AddToMessage("Shutting Down Server...");
 
         // Secretly Backup the Server
-        await FactorioServerCommand.Backup();
-        await FactorioServerCommand.Shutdown();
+        await serverManager.Backup();
+        await serverManager.Shutdown();
 
-        if (!(await FactorioServerCommand.IsOnline())) {
-            dataManager.SERVER_IS_ALIVE = false;
+        if (!(await serverManager.IsOnline())) 
             return this.AddToMessage("Server is Offline.");
-        }
 
-        dataManager.SERVER_IS_ALIVE = true;
         this.AddToMessage("Error Shutting Down Server.");
         this.AddToMessage("Server is still Online.");
     }

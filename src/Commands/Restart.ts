@@ -1,8 +1,6 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
-import fs from "fs";
-import FactorioServerCommands from "../FactorioServerCommands";
 
 class Restart extends Command {
 
@@ -17,27 +15,28 @@ class Restart extends Command {
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
         let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
+        let serverManager = dataManager.SERVER_MANAGER;
 
 
-        if (!(await FactorioServerCommands.IsOnline()))
+        if (!(await serverManager.IsOnline()))
             return this.AddToMessage("Server is not Running, cannot Restart.");
 
         this.AddToMessage("Shutting Down Server...");
 
-        let shutdownStatus = await FactorioServerCommands.Shutdown();
+        let shutdownStatus = await serverManager.Shutdown();
 
-        if (!shutdownStatus || await FactorioServerCommands.IsOnline())
+        if (!shutdownStatus || await serverManager.IsOnline())
             return this.AddToMessage("Error Shutting Down Server. Please Check the Logs for more Information.");
 
         this.AddToMessage("Server Shutdown! Waiting a Few Seconds to Restart...");
 
-        await new Promise(resolve => setTimeout(resolve, FactorioServerCommands.WAIT_TIME));
+        await new Promise(resolve => setTimeout(resolve, serverManager.ActionWaitTime));
 
         this.AddToMessage(`Starting Server...`);
 
-        let startStatus = await FactorioServerCommands.Start();
+        let startStatus = await serverManager.Start();
 
-        if (!startStatus || !(await FactorioServerCommands.IsOnline()))
+        if (!startStatus || !(await serverManager.IsOnline()))
             return this.AddToMessage("Error Starting Server. Please Check the Logs for more Information.");
 
         this.AddToMessage("Server Started!");

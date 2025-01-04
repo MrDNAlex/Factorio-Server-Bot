@@ -5,7 +5,6 @@ import fs from "fs";
 import path from "path";
 import WorldInfo from "../WorldInfo";
 import axios from "axios";
-import FactorioServerCommands from "../FactorioServerCommands";
 
 class LoadWorld extends Command {
 
@@ -19,11 +18,12 @@ class LoadWorld extends Command {
 
     public RunCommand = async (client: Client, interaction: ChatInputCommandInteraction<CacheType>, BotDataManager: BotDataManager) => {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
+        let serverManager = dataManager.SERVER_MANAGER;
 
         const seed = interaction.options.getInteger("seed");
         const backup = interaction.options.getAttachment("backup");
 
-        if (await FactorioServerCommands.IsOnline())
+        if (await serverManager.IsOnline())
             return this.AddToMessage("Server cannot be Running when Loading a World.");
 
         if (seed && backup)

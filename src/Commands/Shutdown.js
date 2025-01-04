@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
-const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 class Shutdown extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -14,19 +13,15 @@ class Shutdown extends dna_discord_framework_1.Command {
         this.IsCommandBlocking = true;
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
-            if (!dataManager.SERVER_IS_ALIVE || !(await FactorioServerCommands_1.default.IsOnline())) {
-                dataManager.SERVER_IS_ALIVE = false;
+            let serverManager = dataManager.SERVER_MANAGER;
+            if (!(await serverManager.IsOnline()))
                 return this.AddToMessage("Server is not Running, Nothing to Shutdown");
-            }
             this.AddToMessage("Shutting Down Server...");
             // Secretly Backup the Server
-            await FactorioServerCommands_1.default.Backup();
-            await FactorioServerCommands_1.default.Shutdown();
-            if (!(await FactorioServerCommands_1.default.IsOnline())) {
-                dataManager.SERVER_IS_ALIVE = false;
+            await serverManager.Backup();
+            await serverManager.Shutdown();
+            if (!(await serverManager.IsOnline()))
                 return this.AddToMessage("Server is Offline.");
-            }
-            dataManager.SERVER_IS_ALIVE = true;
             this.AddToMessage("Error Shutting Down Server.");
             this.AddToMessage("Server is still Online.");
         };

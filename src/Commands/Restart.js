@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
-const FactorioServerCommands_1 = __importDefault(require("../FactorioServerCommands"));
 class Restart extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -15,17 +14,18 @@ class Restart extends dna_discord_framework_1.Command {
         this.RunCommand = async (client, interaction, BotDataManager) => {
             let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
             let connectionInfo = `${dataManager.SERVER_HOSTNAME}:${dataManager.SERVER_PORT}`;
-            if (!(await FactorioServerCommands_1.default.IsOnline()))
+            let serverManager = dataManager.SERVER_MANAGER;
+            if (!(await serverManager.IsOnline()))
                 return this.AddToMessage("Server is not Running, cannot Restart.");
             this.AddToMessage("Shutting Down Server...");
-            let shutdownStatus = await FactorioServerCommands_1.default.Shutdown();
-            if (!shutdownStatus || await FactorioServerCommands_1.default.IsOnline())
+            let shutdownStatus = await serverManager.Shutdown();
+            if (!shutdownStatus || await serverManager.IsOnline())
                 return this.AddToMessage("Error Shutting Down Server. Please Check the Logs for more Information.");
             this.AddToMessage("Server Shutdown! Waiting a Few Seconds to Restart...");
-            await new Promise(resolve => setTimeout(resolve, FactorioServerCommands_1.default.WAIT_TIME));
+            await new Promise(resolve => setTimeout(resolve, serverManager.ActionWaitTime));
             this.AddToMessage(`Starting Server...`);
-            let startStatus = await FactorioServerCommands_1.default.Start();
-            if (!startStatus || !(await FactorioServerCommands_1.default.IsOnline()))
+            let startStatus = await serverManager.Start();
+            if (!startStatus || !(await serverManager.IsOnline()))
                 return this.AddToMessage("Error Starting Server. Please Check the Logs for more Information.");
             this.AddToMessage("Server Started!");
             this.AddToMessage("Connect to the Server using the Following Connection Info:");
