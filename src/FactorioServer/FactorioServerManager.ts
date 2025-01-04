@@ -49,6 +49,16 @@ class FactorioServerManager {
 
     public WorldInfo: string;
 
+    //public BackupWorldDirectory: string;
+    //
+    //public BackupWorldSettings: string;
+    //
+    //public BackupWorldImage: string;
+    //
+    //public BackupWorldFile: string;
+    //
+    //public BackupWorldInfo: string;
+
     // Files
 
     public static WorldDirectory = "/home/factorio/World";
@@ -77,6 +87,12 @@ class FactorioServerManager {
             this.WorldImageSize = data.WorldImageSize;
             this.WorldInfo = data.WorldInfo;
 
+            //this.BackupWorldDirectory = data.BackupWorldDirectory;
+            //this.BackupWorldSettings = data.BackupWorldSettings;
+            //this.BackupWorldImage = data.BackupWorldImage;
+            //this.BackupWorldFile = data.BackupWorldFile;
+            //this.BackupWorldInfo = data.BackupWorldInfo;
+
         } else {
             this.Name = "Factorio Server";
             this.StartTime = 0;
@@ -89,9 +105,22 @@ class FactorioServerManager {
             this.WorldImage = "";
             this.WorldFile = "";
             this.WorldInfo = "";
+            //this.BackupWorldDirectory = "";
+            //this.BackupWorldSettings = "";
+            //this.BackupWorldImage = "";
+            //this.BackupWorldFile = "";
+            //this.BackupWorldInfo = "";
             this.WorldImageSize = 0;
         }
     }
+
+    public AllFilesExist() {
+        return fs.existsSync(this.WorldSettings) && fs.existsSync(this.WorldInfo) && fs.existsSync(this.WorldImage) && fs.existsSync(this.WorldFile);
+    }
+
+    //public AllBackupFilesExist() {
+    //    return fs.existsSync(this.BackupWorldSettings) && fs.existsSync(this.BackupWorldInfo) && fs.existsSync(this.BackupWorldImage) && fs.existsSync(this.BackupWorldFile);
+    //}
 
     /**
      * Pings the Factorio Server to see if it is online

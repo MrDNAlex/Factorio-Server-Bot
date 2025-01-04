@@ -27,6 +27,11 @@ class FactorioServerManager {
             this.WorldFile = data.WorldFile;
             this.WorldImageSize = data.WorldImageSize;
             this.WorldInfo = data.WorldInfo;
+            //this.BackupWorldDirectory = data.BackupWorldDirectory;
+            //this.BackupWorldSettings = data.BackupWorldSettings;
+            //this.BackupWorldImage = data.BackupWorldImage;
+            //this.BackupWorldFile = data.BackupWorldFile;
+            //this.BackupWorldInfo = data.BackupWorldInfo;
         }
         else {
             this.Name = "Factorio Server";
@@ -39,9 +44,20 @@ class FactorioServerManager {
             this.WorldImage = "";
             this.WorldFile = "";
             this.WorldInfo = "";
+            //this.BackupWorldDirectory = "";
+            //this.BackupWorldSettings = "";
+            //this.BackupWorldImage = "";
+            //this.BackupWorldFile = "";
+            //this.BackupWorldInfo = "";
             this.WorldImageSize = 0;
         }
     }
+    AllFilesExist() {
+        return fs_1.default.existsSync(this.WorldSettings) && fs_1.default.existsSync(this.WorldInfo) && fs_1.default.existsSync(this.WorldImage) && fs_1.default.existsSync(this.WorldFile);
+    }
+    //public AllBackupFilesExist() {
+    //    return fs.existsSync(this.BackupWorldSettings) && fs.existsSync(this.BackupWorldInfo) && fs.existsSync(this.BackupWorldImage) && fs.existsSync(this.BackupWorldFile);
+    //}
     /**
      * Pings the Factorio Server to see if it is online
      * @returns Returns a Boolean Flag | True if the Server is Online, False if the Server is Offline
@@ -147,6 +163,15 @@ class FactorioServerManager {
             fs_1.default.writeFileSync(this.WorldInfo, JSON.stringify(this, null, 4));
     }
 }
+//public BackupWorldDirectory: string;
+//
+//public BackupWorldSettings: string;
+//
+//public BackupWorldImage: string;
+//
+//public BackupWorldFile: string;
+//
+//public BackupWorldInfo: string;
 // Files
 FactorioServerManager.WorldDirectory = "/home/factorio/World";
 FactorioServerManager.WorldImagePath = "/home/factorio/World/Preview.png";

@@ -35,6 +35,7 @@ class GenWorld extends dna_discord_framework_1.Command {
             this.AddToMessage(`Seed: ${worldGenManager.ServerManager.WorldSeed}`);
             this.AddToMessage("Generating World Image...");
             let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
+            worldGenManager.ServerManager.SaveWorldInfo(false);
             if (!worldImageStatus || !(fs_1.default.existsSync(worldGenManager.ServerManager.WorldImage)))
                 return this.AddToMessage("Error Generatting World Image : Try Again");
             if (!(fs_1.default.fstatSync(fs_1.default.openSync(worldGenManager.ServerManager.WorldImage, 'r')).size < this.MB_25))

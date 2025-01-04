@@ -3,6 +3,7 @@ import { BotData, BotDataManager, Command, ICommandOption, OptionTypesEnum } fro
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
 import fs from "fs";
 import WorldInfo from "../WorldInfo";
+import FactorioServerManager from "../FactorioServer/FactorioServerManager";
 
 class Worlds extends Command {
 
@@ -22,24 +23,30 @@ class Worlds extends Command {
         let seeds = fs.readdirSync(dataManager.PREVIEWS_PATH);
 
         if (seed) {
-            let seedDirectory = "SEED_" + seed;
-            let worldInfo = new WorldInfo(seed);
-
-            this.AddToMessage(`Uploading World: ${seed}`);
+            let seedDirectory = `SEED_${seed}`;
+            let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
 
             if (!seeds.includes(seedDirectory))
                 return this.AddToMessage("Seed not Found. Could not Upload Preview");
 
-            if (!fs.existsSync(worldInfo.WorldImage))
+            if (!fs.existsSync(worldInfoPath))
+                return this.AddToMessage("World Info is Missing. Could not Upload Preview");
+
+            const jsonData = JSON.parse(fs.readFileSync(worldInfoPath, 'utf8'));
+            let worldManager = new FactorioServerManager(jsonData);
+
+            this.AddToMessage(`Uploading World: ${seed}`);
+
+            if (!fs.existsSync(worldManager.WorldImage))
                 return this.AddToMessage("World Image is Missing. Could not Upload Preview");
 
-            if (fs.fstatSync(fs.openSync(worldInfo.WorldImage, 'r')).size < this.MB_25)
-                return this.AddFileToMessage(worldInfo.WorldImage);
+            if (fs.fstatSync(fs.openSync(worldManager.WorldImage, 'r')).size < this.MB_25)
+                return this.AddFileToMessage(worldManager.WorldImage);
             else
                 this.AddToMessage("Map Image is too large to send, please download it from the server");
 
-            if (fs.fstatSync(fs.openSync(worldInfo.WorldFile, 'r')).size < this.MB_25)
-                return this.AddFileToMessage(worldInfo.WorldFile);
+            if (fs.fstatSync(fs.openSync(worldManager.WorldFile, 'r')).size < this.MB_25)
+                return this.AddFileToMessage(worldManager.WorldFile);
             else
                 this.AddToMessage("Map File is too large to send, please download it from the server");
 

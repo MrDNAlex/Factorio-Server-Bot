@@ -40,6 +40,10 @@ class PlayerDatabase {
 
     public Update() {
         let dataManager = BotData.Instance(FactorioServerBotDataManager);
+
+        if (!fs.existsSync(dataManager.SERVER_LOGS))
+            return;
+
         const lines = fs.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));

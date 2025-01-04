@@ -17,23 +17,29 @@ class WorldGenManager {
     public async GenWorld(seed: number, mapGenSettings: Attachment | null) {
         let dataManager = BotData.Instance(FactorioServerBotDataManager)
         let worldDir = `${dataManager.PREVIEWS_PATH}/SEED_${seed}`;
+        let backupDir = `${worldDir}/Backup`;
 
         if (!fs.existsSync(worldDir))
             fs.mkdirSync(worldDir, { recursive: true });
 
         this.ServerManager.WorldSeed = seed;
+
         this.ServerManager.WorldDirectory = worldDir;
         this.ServerManager.WorldSettings = `${worldDir}/MapGenSettings.json`;
         this.ServerManager.WorldInfo = `${worldDir}/WorldInfo.json`;
         this.ServerManager.WorldImage = `${worldDir}/Preview.png`;
         this.ServerManager.WorldFile = `${worldDir}/World.zip`;
 
+        //this.ServerManager.BackupWorldDirectory = backupDir;
+        //this.ServerManager.BackupWorldSettings = `${backupDir}/MapGenSettings.json`;
+        //this.ServerManager.BackupWorldInfo = `${backupDir}/WorldInfo.json`;
+        //this.ServerManager.BackupWorldImage = `${backupDir}/Preview.png`;
+        //this.ServerManager.BackupWorldFile = `${backupDir}/World.zip`;
+
         if (mapGenSettings)
             await this.DownloadFile(mapGenSettings, this.ServerManager.WorldSettings);
         else
             fs.cpSync(dataManager.MAP_GEN_TEMPLATE, this.ServerManager.WorldSettings);
-
-        this.ServerManager.SaveWorldInfo(false);
     }
 
     /**

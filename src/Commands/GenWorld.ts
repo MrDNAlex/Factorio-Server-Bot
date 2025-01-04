@@ -48,6 +48,8 @@ class GenWorld extends Command {
 
         let worldImageStatus = await worldGenManager.GenerateWorldPreview(previewImageSize);
 
+        worldGenManager.ServerManager.SaveWorldInfo(false);
+
         if (!worldImageStatus || !(fs.existsSync(worldGenManager.ServerManager.WorldImage)))
             return this.AddToMessage("Error Generatting World Image : Try Again");
 

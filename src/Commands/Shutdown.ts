@@ -1,6 +1,7 @@
 import { Client, ChatInputCommandInteraction, CacheType } from "discord.js";
 import { BotData, BotDataManager, Command } from "dna-discord-framework";
 import FactorioServerBotDataManager from "../FactorioServerBotDataManager";
+import { server } from "typescript";
 
 class Shutdown extends Command {
 
@@ -30,6 +31,8 @@ class Shutdown extends Command {
 
         this.AddToMessage("Error Shutting Down Server.");
         this.AddToMessage("Server is still Online.");
+
+        dataManager.Update();
     }
 
 }

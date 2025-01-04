@@ -24,6 +24,7 @@ class Shutdown extends dna_discord_framework_1.Command {
                 return this.AddToMessage("Server is Offline.");
             this.AddToMessage("Error Shutting Down Server.");
             this.AddToMessage("Server is still Online.");
+            dataManager.Update();
         };
     }
 }

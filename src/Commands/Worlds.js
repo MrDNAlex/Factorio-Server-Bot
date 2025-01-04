@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const dna_discord_framework_1 = require("dna-discord-framework");
 const FactorioServerBotDataManager_1 = __importDefault(require("../FactorioServerBotDataManager"));
 const fs_1 = __importDefault(require("fs"));
-const WorldInfo_1 = __importDefault(require("../WorldInfo"));
+const FactorioServerManager_1 = __importDefault(require("../FactorioServer/FactorioServerManager"));
 class Worlds extends dna_discord_framework_1.Command {
     constructor() {
         super(...arguments);
@@ -19,19 +19,23 @@ class Worlds extends dna_discord_framework_1.Command {
             let seed = interaction.options.getInteger("seed");
             let seeds = fs_1.default.readdirSync(dataManager.PREVIEWS_PATH);
             if (seed) {
-                let seedDirectory = "SEED_" + seed;
-                let worldInfo = new WorldInfo_1.default(seed);
-                this.AddToMessage(`Uploading World: ${seed}`);
+                let seedDirectory = `SEED_${seed}`;
+                let worldInfoPath = `${dataManager.PREVIEWS_PATH}/${seedDirectory}/WorldInfo.json`;
                 if (!seeds.includes(seedDirectory))
                     return this.AddToMessage("Seed not Found. Could not Upload Preview");
-                if (!fs_1.default.existsSync(worldInfo.WorldImage))
+                if (!fs_1.default.existsSync(worldInfoPath))
+                    return this.AddToMessage("World Info is Missing. Could not Upload Preview");
+                const jsonData = JSON.parse(fs_1.default.readFileSync(worldInfoPath, 'utf8'));
+                let worldManager = new FactorioServerManager_1.default(jsonData);
+                this.AddToMessage(`Uploading World: ${seed}`);
+                if (!fs_1.default.existsSync(worldManager.WorldImage))
                     return this.AddToMessage("World Image is Missing. Could not Upload Preview");
-                if (fs_1.default.fstatSync(fs_1.default.openSync(worldInfo.WorldImage, 'r')).size < this.MB_25)
-                    return this.AddFileToMessage(worldInfo.WorldImage);
+                if (fs_1.default.fstatSync(fs_1.default.openSync(worldManager.WorldImage, 'r')).size < this.MB_25)
+                    return this.AddFileToMessage(worldManager.WorldImage);
                 else
                     this.AddToMessage("Map Image is too large to send, please download it from the server");
-                if (fs_1.default.fstatSync(fs_1.default.openSync(worldInfo.WorldFile, 'r')).size < this.MB_25)
-                    return this.AddFileToMessage(worldInfo.WorldFile);
+                if (fs_1.default.fstatSync(fs_1.default.openSync(worldManager.WorldFile, 'r')).size < this.MB_25)
+                    return this.AddFileToMessage(worldManager.WorldFile);
                 else
                     this.AddToMessage("Map File is too large to send, please download it from the server");
                 return;

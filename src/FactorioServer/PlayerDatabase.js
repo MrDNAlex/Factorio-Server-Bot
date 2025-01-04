@@ -39,6 +39,8 @@ class PlayerDatabase {
     }
     Update() {
         let dataManager = dna_discord_framework_1.BotData.Instance(FactorioServerBotDataManager_1.default);
+        if (!fs_1.default.existsSync(dataManager.SERVER_LOGS))
+            return;
         const lines = fs_1.default.readFileSync(dataManager.SERVER_LOGS, 'utf8').split("\n");
         const joins = lines.filter((line) => line.includes("[JOIN]"));
         const leaves = lines.filter((line) => line.includes("[LEAVE]"));
