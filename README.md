@@ -215,5 +215,7 @@ As Long as you have specified the Volume Mounts in the Shell Script (-v "path/to
 This means that If the Bot Crashes, Needs to be Updated, You lost the Token and Need to reset it (By Deleting the Contents of the Setting Folder, or resetting the Token on Discord Developer Website (Once Bot Restarts it will recognize a New Token needs to be Specified) or even Transfer the Bot to a Different Server you will always be able to access the Worlds and Server that was made.
 Data can only be lost if you manually delete it.
 
+---
+
 ## Contact
 If you have further questions or would like to discuss custom Discord Bot Developement or Paid Dedicated Hosting you can message me on Discord @ MyTyranosaur
