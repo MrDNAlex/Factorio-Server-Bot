@@ -74,6 +74,12 @@ Now create a new File to Run the Discord Bot and Paste the Following Info inside
 
 Example Name : RunWorldGen.sh
 
+Notes : 
+
+1. --network="host" only works on Linux machines, if done on Windows you can Expose a Specific Port to achieve the Same Affect, Windows Firewall may cause some headaches which makes Linux Development much easier
+2. If Exposing individual Ports keep track of which one it is, you will need to Port Forward it later
+
+
 ```
 #!/bin/bash
 
@@ -120,6 +126,8 @@ If the Final Message you get is Commands Registered then you are Done!
 
 Now you can go Interact with me on Discord, using /help may be a good start
 
+**After Reading the Contents of /help you should run /setup and Specify and the Hostname (Your Home IP Adress) and a Port you want the Server Exposed On (If not specified the Default is 8213), you should then Port Forward the Bot on Your Router**
+
 ## Commands
 All Commands can be used using /name, must be all lower case, some additional optional or mandatory info can be provided to commands. Discord will specify when needed.
 
@@ -133,10 +141,18 @@ Provides some Helpful Info about Setting me up and Using other Commands. Also Up
 ### Setup 
 Sets me up with all Files and Info I need, you can optinally set a Text Channel where World Gen Announcements will be Sent
 
+#### Options
+
+HostName - The HostName/IP Address of your Home Router or public Computer Hosting the Docker Container, this is necessary to Connect to.
+
+Port - The Port the Server will be exposed on (If Unspecified Default is 8213)
+
+WorldChannel - A Text Channel that I will send World Gen Announcements to, World Image and ZIP File can be Downloaded from the Announcement. Is Optional to have
+
 ---
 
 ### GenWorld
-Generates a World Preview Image and File, these files are Uploaded to an Ephemeral Message, this is only visible to you and Disappears after a few Minutes. If a Text Channel was Specified the Image and World File will be Uploaded and Publicly Announced in the Channel
+Generates a World Preview Image and File, these files are Uploaded to an Ephemeral Message, this is only visible to you and Disappears after a few Minutes. If a Text Channel was Specified the Image and World File will be Uploaded and Publicly Announced in the Channel. Can Only be run when Server is Offline. If a World has been Chosen (Server has been Started with a World) I will send a Message showing that the Generated World will not Override the Current World Files.
 
 #### Options
 Name - A Name for the World **Must** be Specified
@@ -145,8 +161,42 @@ PreviewSize - Size of the World Preview (In Pixels) (Max Size that Can be Upload
 
 Seed - A Seed Can be specified for the World Gen, if not specified a Random Seed will be used
 
-
 MapGenSettings - A Json File that can be uploaded specifying World Gen Settings, such as Frequency, Size and Richness of Ore Patches and More. Download the File Template from the /help command
+
+---
+
+### Start 
+Starts the Factorio Server Using the Latest World Generated or the Last Loaded World using /loadworld
+
+---
+
+### Shutdown
+Shutsdown the Factorio Server
+
+---
+
+### Restart
+Restarts the Server by Shutting it Down and then Starting it back up again with a Delay between
+
+---
+
+### Backup
+Creates a Backup file of the Servers State when used. File is Uploaded to Message so that you can Save it on your Personal Machine
+
+---
+
+### Join
+Sends the Connection Info to Input into **Multiplayer -> Connect to Address** to Join the Server.
+
+--- 
+
+### Players
+Lists all the Players that Are Currently Online and All Players that have Joined the Server. Playtime is Provided and Time Since last Online. Only works when the Server is Online.
+
+---
+
+### Status
+Provides the Servers Status and It's Info. Only works when the Server is Online. Info Provided is World Name, Number of Players Online, Time the Server has been Online and Time Since last Backup (Automatic Backups Occur every 10 minutes when Players are Online)
 
 ---
 
@@ -157,6 +207,13 @@ Lists all the World Seeds that I've Generated, if a Seed is specified, I will up
 Seed - Seed can be Specified if you want to Download a Worlds Preview, World ZIP File or Server_Package.tar.gz
 
 ---
+
+## Questions
+
+### Is Data Persistent?
+As Long as you have specified the Volume Mounts in the Shell Script (-v "path/to/files:path/to/files" ...) and you don't change them Data will always be Peristent.
+This means that If the Bot Crashes, Needs to be Updated, You lost the Token and Need to reset it (By Deleting the Contents of the Setting Folder, or resetting the Token on Discord Developer Website (Once Bot Restarts it will recognize a New Token needs to be Specified) or even Transfer the Bot to a Different Server you will always be able to access the Worlds and Server that was made.
+Data can only be lost if you manually delete it.
 
 ## Contact
 If you have further questions or would like to discuss custom Discord Bot Developement or Paid Dedicated Hosting you can message me on Discord @ MyTyranosaur
