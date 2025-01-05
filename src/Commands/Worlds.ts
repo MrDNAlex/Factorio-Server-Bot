@@ -44,12 +44,12 @@ class Worlds extends Command {
                 return this.AddToMessage("World Image is Missing. Could not Upload Preview");
 
             if (fs.fstatSync(fs.openSync(worldManager.WorldImage, 'r')).size < this.MB_25)
-                return this.AddFileToMessage(worldManager.WorldImage);
+                this.AddFileToMessage(worldManager.WorldImage);
             else
                 this.AddToMessage("Map Image is too large to send, please download it from the server");
 
             if (fs.fstatSync(fs.openSync(worldManager.WorldFile, 'r')).size < this.MB_25)
-                return this.AddFileToMessage(worldManager.WorldFile);
+                this.AddFileToMessage(worldManager.WorldFile);
             else
                 this.AddToMessage("Map File is too large to send, please download it from the server");
 
