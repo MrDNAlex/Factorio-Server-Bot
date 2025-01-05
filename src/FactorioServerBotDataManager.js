@@ -33,6 +33,7 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
         const previews = "/home/factorio/Previews";
         const backups = "/home/factorio/Backups";
         const extras = "/home/factorio/Backups/Extras";
+        const worldUpload = "/home/factorio/WorldUpload";
         if (!fs_1.default.existsSync(world))
             fs_1.default.mkdirSync(world, { recursive: true });
         if (!fs_1.default.existsSync(previews))
@@ -41,6 +42,8 @@ class FactorioServerBotDataManager extends dna_discord_framework_1.BotDataManage
             fs_1.default.mkdirSync(backups, { recursive: true });
         if (!fs_1.default.existsSync(extras))
             fs_1.default.mkdirSync(extras, { recursive: true });
+        if (!fs_1.default.existsSync(worldUpload))
+            fs_1.default.mkdirSync(worldUpload, { recursive: true });
     }
     Update() {
         this.SERVER_MANAGER.PlayerDB.Update();
