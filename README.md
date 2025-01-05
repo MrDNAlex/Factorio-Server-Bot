@@ -41,13 +41,13 @@ Apply the Following Settings in OAuth2 and then Copy and Paste the Link below an
 
 ![image](https://github.com/user-attachments/assets/fd0bcec3-9dad-463f-9c39-5d90fb144fbf)
 
-![image](https://github.com/user-attachments/assets/fb5c0e80-3bf0-45c0-a200-0ecda1bfb404)
+![image](https://github.com/user-attachments/assets/ef88d8be-1baf-41d5-957a-4f85f34b8616)
 
-![image](https://github.com/user-attachments/assets/fddac90c-9b6b-4e60-8846-3284b3b3bf80)
+![image](https://github.com/user-attachments/assets/426297c9-ccdc-4ead-a9d4-cb32cef80a49)
 
 Now I should Appear Offline
 
-![image](https://github.com/user-attachments/assets/0a806723-1740-404e-a62b-b61653af296e)
+![image](https://github.com/user-attachments/assets/43aee0b7-7b32-4cfd-912e-fc2b8efa533e)
 
 Now go back to Bot Tab and we will come back to this Later
 
@@ -57,7 +57,7 @@ I will assume you have Docker already installed on your Machine, if not you can 
 
 Logon to your Linux Machine, and CD into the directory you want to Host the Bots Resources.
 
-![image](https://github.com/user-attachments/assets/298bb590-6e66-4ea7-ab4e-a60b2d78a8c2)
+![image](https://github.com/user-attachments/assets/70a3a2c1-acfb-4ade-8147-a7bbf7e1264f)
 
 Run the Folowing Commands to make the Appropriate Folder Structure and give it necessary Permissions
 
@@ -70,10 +70,6 @@ sudo chown -R $USER:docker Settings
 sudo chmod -R 775 Settings
 ```
 
-You should get the following Structure
-
-![image](https://github.com/user-attachments/assets/c7ba1495-21cf-4982-ba91-ef83ed56fa00)
-
 Now create a new File to Run the Discord Bot and Paste the Following Info inside it. (Replace the {path/to/project} with the Appropriate Path)
 
 Example Name : RunWorldGen.sh
@@ -81,42 +77,46 @@ Example Name : RunWorldGen.sh
 ```
 #!/bin/bash
 
-docker pull mrdnalex/factorioworldgenbot
+docker pull mrdnalex/factorioserverbot
 
-docker kill factorioworldgen
+docker kill factorioserver
 
-docker rm factorioworldgen
+docker rm factorioserver
 
-docker run -it --name factorioworldgen --restart=always --network="host" -v "{path/to/project}/Settings":"/FactorioBot/Resources" -v "{path/to/project}/Resources":"/home/factorio" mrdnalex/factorioworldgenbot
+docker run -it --name factorioserver --restart=always --network="host" -v "{path/to/project}/Settings":"/FactorioBot/Resources" -v "{path/to/project}/Resources":"/home/factorio" mrdnalex/factorioserverbot
 ```
 
 Save the File and then make it executable using the following
 
 ```
-sudo chmod +x RunWorldGen.sh
+sudo chmod +x RunServer.sh
 ```
+
+You should get the following Structure
+
+![image](https://github.com/user-attachments/assets/fe417bf8-7087-4e58-985b-885600c8ba11)
 
 And Now run the Shell Script to Launch the Bot
 
 ```
-./RunWorldGen.sh
+./RunServer.sh
 ```
 
 You should receive something somewhat similar to the Following, Downloading and Extracting may take a few minutes. You should be Prompted for a Discord Token.
 
-![image](https://github.com/user-attachments/assets/79c25a5b-23f4-4e4c-80bc-4aa4fc3ada7c)
+![image](https://github.com/user-attachments/assets/fd624c25-2d48-4298-a68e-32dafe2d418a)
 
 Now we go back to the Bot Tab and Click the "Reset Token" Button.
 
-![image](https://github.com/user-attachments/assets/3dfaf167-d7f9-4b2c-b87f-70c0d7929df4)
+![image](https://github.com/user-attachments/assets/a4703836-ce70-47f3-8dd1-54a22925ec9a)
 
 Don't reveal the Token to Anyone, and now copy and paste it as the Input
 
-![image](https://github.com/user-attachments/assets/fd7dc4ea-591e-4ee1-be5e-48577f28b46b)
+![image](https://github.com/user-attachments/assets/bbc81b71-6a79-4555-a0b6-f5831295613a)
 
 If the Final Message you get is Commands Registered then you are Done!
 
-![image](https://github.com/user-attachments/assets/fe38f2d4-2efc-47f4-add8-13f65d0c053c)
+![image](https://github.com/user-attachments/assets/e84250cc-2fd6-46d0-ba94-b53346a4088a)
 
 Now you can go Interact with me on Discord, using /help may be a good start
 
